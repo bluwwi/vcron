@@ -27,13 +27,26 @@ async function request<T>(
   options: RequestInit = {},
 ): Promise<T> {
   const apiKey = getApiKey();
+
+  if (!apiKey) {
+    console.warn(`[vcron] No API key set in localStorage. Go to /settings to set it.`);
+  }
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "X-API-Key": apiKey,
     ...(options.headers as Record<string, string>),
   };
 
+  const method = options.method || "GET";
+  console.log(`[vcron] ${method} ${path}`, {
+    hasApiKey: !!apiKey,
+    keyPreview: apiKey ? `${apiKey.slice(0, 4)}...` : "(empty)",
+  });
+
   const res = await fetch(path, { ...options, headers });
+
+  console.log(`[vcron] ${method} ${path} → ${res.status}`);
 
   if (!res.ok) {
     let message = `HTTP ${res.status}`;
@@ -43,6 +56,7 @@ async function request<T>(
     } catch {
       // ignore parse error
     }
+    console.error(`[vcron] ${method} ${path} failed: ${message}`);
     throw new Error(message);
   }
 
