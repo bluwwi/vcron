@@ -177,19 +177,25 @@ select option {
 }
 
 /* Marquee */
-.marquee-track {
-  display: flex;
-  width: max-content;
-  animation: marquee 25s linear infinite;
+.marquee-section {
+  overflow: hidden;
+  position: relative;
 }
 
-.marquee-group {
-  flex-shrink: 0;
+.marquee-inner {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee-scroll 20s linear infinite;
+  will-change: transform;
 }
 
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+.marquee-inner:hover {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-scroll {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
 }
 
 /* Hover spotlight */
