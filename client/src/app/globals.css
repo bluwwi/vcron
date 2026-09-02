@@ -210,15 +210,9 @@ select option { background: var(--color-surface); color: var(--color-text); }
 /* ── Marquee ── */
 .marquee-section { overflow: hidden; position: relative; }
 .marquee-content {
-  display: inline-block;
+  display: flex;
   white-space: nowrap;
-  animation: marquee 45s linear infinite;
   will-change: transform;
-}
-.marquee-content:hover { animation-play-state: paused; }
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
 }
 
 /* ── Noise ── */

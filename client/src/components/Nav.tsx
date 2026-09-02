@@ -82,18 +82,14 @@ export function Nav() {
               New App
             </Link>
             <div className="ml-2 flex items-center gap-2 border-l border-border pl-3">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-surface-2 text-xs font-medium text-text-dim">
-                {username.charAt(0).toUpperCase()}
-              </div>
-              <span className="text-text-dim text-xs hidden sm:block">{username}</span>
+
+              <span className="text-text-dim text-sm hidden sm:block">{username}</span>
               <button
                 onClick={handleLogout}
-                className="text-text-dim hover:text-danger transition-colors p-1"
+                className="text-text-dim hover:text-danger transition-colors text-sm font-medium px-2 py-1 rounded-lg"
                 title="Logout"
               >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
-                </svg>
+                Logout
               </button>
             </div>
           </div>

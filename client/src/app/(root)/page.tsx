@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRevealer } from "@/hooks/useRevealer";
 import { PixelLoader } from "@/components/PixelLoader";
+import { Marquee } from "@/components/Marquee";
 import { useInitialLoader } from "@/lib/useInitialLoader";
 
 export default function LandingPage() {
@@ -45,11 +46,10 @@ export default function LandingPage() {
           className="relative z-20 mx-auto w-full max-w-7xl"
           style={{ padding: "0 clamp(1.5rem, 5vw, 5rem)" }}
         >
-          {/* Single massive title — centered, fills viewport */}
           <h1
             className="reveal font-bold text-center"
             style={{
-              fontSize: "clamp(3.8rem, 21.2vw, 20rem)",
+              fontSize: "clamp(3.8rem, 24.2vw, 20rem)",
               fontWeight: 620,
               lineHeight: "0.84",
               letterSpacing: "-0.035em",
@@ -132,15 +132,22 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════ MARQUEE ═══════════════ */}
-      <section
-        className="marquee-section py-3 sm:py-4"
-        style={{ background: "linear-gradient(90deg, rgba(202,255,97,0.02), rgba(202,255,97,0.05), rgba(202,255,97,0.02))" }}
-      >
-        <div className="marquee-content">
-          {renderMarqueeSpan()}
-          {renderMarqueeSpan()}
-        </div>
-      </section>
+      <div style={{ background: "linear-gradient(90deg, rgba(202,255,97,0.02), rgba(202,255,97,0.05), rgba(202,255,97,0.02))" }}>
+        <Marquee speed={25}>
+          <span className="mono text-xs sm:text-sm tracking-[0.25em] font-bold py-3 sm:py-4">
+            <span className="text-text">SCHEDULE</span>
+            <span className="text-accent mx-5 sm:mx-6">◦</span>
+            <span className="text-text">EXECUTE</span>
+            <span className="text-accent mx-5 sm:mx-6">◦</span>
+            <span className="text-text">LOG</span>
+            <span className="text-accent mx-5 sm:mx-6">◦</span>
+            <span className="text-text">RETRY</span>
+            <span className="text-accent mx-5 sm:mx-6">◦</span>
+            <span className="text-text">REPEAT</span>
+            <span className="text-accent mx-5 sm:mx-6">◦</span>
+          </span>
+        </Marquee>
+      </div>
 
       {/* ═══════════════ FEATURES ═══════════════ */}
       <section>
@@ -353,23 +360,6 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
-  );
-}
-
-function renderMarqueeSpan() {
-  return (
-    <span className="mono text-xs sm:text-sm tracking-[0.25em] font-bold">
-      <span className="text-text">SCHEDULE</span>
-      <span className="text-accent mx-5 sm:mx-6">◦</span>
-      <span className="text-text">EXECUTE</span>
-      <span className="text-accent mx-5 sm:mx-6">◦</span>
-      <span className="text-text">LOG</span>
-      <span className="text-accent mx-5 sm:mx-6">◦</span>
-      <span className="text-text">RETRY</span>
-      <span className="text-accent mx-5 sm:mx-6">◦</span>
-      <span className="text-text">REPEAT</span>
-      <span className="text-accent mx-5 sm:mx-6">◦</span>
-    </span>
   );
 }
 
