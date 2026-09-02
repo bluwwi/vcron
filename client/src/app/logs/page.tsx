@@ -21,7 +21,12 @@ export default function LogsPage() {
       const r = await api.listAllRuns(1, 100, filter);
       setRuns(r);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load");
+      const msg = e instanceof Error ? e.message : "Failed to load";
+      if (msg.includes("not authenticated") || msg.includes("401")) {
+        window.location.href = "/auth";
+        return;
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
