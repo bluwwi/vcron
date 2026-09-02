@@ -1,6 +1,6 @@
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
-use axum::routing::{get, post};
+use axum::routing::get;
 use axum::{Json, Router};
 use chrono::Utc;
 use uuid::Uuid;
@@ -17,10 +17,10 @@ pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/api/jobs", get(list).post(create))
         .route(
-            "/api/jobs/:id",
+            "/api/jobs/{id}",
             get(get_one).put(update).delete(delete),
         )
-        .route("/api/jobs/:id/runs", get(list_runs))
+        .route("/api/jobs/{id}/runs", get(list_runs))
         .route("/api/stats", get(stats))
 }
 

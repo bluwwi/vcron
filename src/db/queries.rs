@@ -248,6 +248,7 @@ pub async fn complete_run(
     Ok(())
 }
 
+#[allow(dead_code)]
 pub async fn prune_old_runs(pool: &SqlitePool, retention_days: i64) -> Result<u64, sqlx::Error> {
     let cutoff = Utc::now()
         .checked_sub_signed(chrono::Duration::days(retention_days))

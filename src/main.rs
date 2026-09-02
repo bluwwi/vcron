@@ -83,7 +83,10 @@ fn build_app(state: AppState) -> Router {
         .merge(api::health::routes())
         .merge(api::build_api_router(state.clone()))
         .layer(TraceLayer::new_for_http())
-        .layer(TimeoutLayer::new(Duration::from_secs(30)))
+        .layer(TimeoutLayer::with_status_code(
+            axum::http::StatusCode::REQUEST_TIMEOUT,
+            Duration::from_secs(30),
+        ))
         .layer(RequestBodyLimitLayer::new(1024 * 1024))
         .with_state(state)
 }

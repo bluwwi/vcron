@@ -7,6 +7,7 @@ use thiserror::Error;
 pub type AppResult<T> = Result<T, AppError>;
 
 #[derive(Error, Debug)]
+#[allow(dead_code)]
 pub enum AppError {
     #[error("not found: {0}")]
     NotFound(String),
