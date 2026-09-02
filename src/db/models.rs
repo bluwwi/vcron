@@ -3,8 +3,36 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct User {
+    pub id: String,
+    pub username: String,
+    #[serde(skip)]
+    pub password_hash: String,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RegisterInput {
+    pub username: String,
+    pub password: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct LoginInput {
+    pub username: String,
+    pub password: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct AuthResponse {
+    pub user: User,
+    pub token: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
 pub struct App {
     pub id: String,
+    pub user_id: String,
     pub name: String,
     pub base_url: String,
     pub description: String,

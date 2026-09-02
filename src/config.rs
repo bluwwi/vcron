@@ -6,6 +6,7 @@ pub struct Config {
     pub port: u16,
     pub log_level: String,
     pub scheduler_interval_seconds: u64,
+    pub jwt_secret: String,
 }
 
 impl Config {
@@ -24,6 +25,10 @@ impl Config {
                 .unwrap_or_else(|_| "5".into())
                 .parse()
                 .unwrap_or(5),
+            jwt_secret: env::var("JWT_SECRET").unwrap_or_else(|_| {
+                tracing::warn!("JWT_SECRET not set — using insecure default. Set JWT_SECRET in production!");
+                "dev-secret-change-me".into()
+            }),
         }
     }
 }
