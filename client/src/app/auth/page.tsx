@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { api } from "@/lib/api";
 
 type Mode = "login" | "register";
@@ -15,7 +16,6 @@ export default function AuthPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Redirect to dashboard if already logged in
     fetch("/api/auth/me", { credentials: "include" })
       .then((r) => { if (r.ok) router.push("/"); })
       .catch(() => {});
@@ -53,13 +53,14 @@ export default function AuthPage() {
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6 animate-fadeIn">
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-black font-bold text-2xl">
-            v
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            <span className="text-accent">v</span>cron
-          </h1>
-          <p className="text-text-dim text-sm mt-1">
+          <Image
+            src="/full-logo.svg"
+            alt="vcron"
+            width={200}
+            height={41}
+            className="mx-auto mb-6"
+          />
+          <p className="text-text-dim text-sm">
             {mode === "login" ? "Welcome back" : "Create your account"}
           </p>
         </div>

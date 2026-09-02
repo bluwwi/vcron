@@ -1,28 +1,43 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #060606;
-  --color-surface: #0e0e0e;
-  --color-surface-hover: #161616;
-  --color-border: #1e1e1e;
-  --color-border-hover: #2a2a2a;
-  --color-text: #e5e5e5;
+  --color-bg: #0a0a0b;
+  --color-surface: #111113;
+  --color-surface-2: #161619;
+  --color-surface-hover: #1a1a1e;
+  --color-border: #1e1e22;
+  --color-border-hover: #2e2e34;
+  --color-text: #e4e4e7;
   --color-text-dim: #71717a;
+  --color-text-dimmer: #52525b;
   --color-accent: #a3e635;
   --color-accent-dim: #65a30d;
-  --color-danger: #ef4444;
-  --color-warning: #f59e0b;
-  --color-success: #22c55e;
+  --color-accent-glow: rgba(163, 230, 53, 0.15);
+  --color-danger: #f43f5e;
+  --color-danger-dim: rgba(244, 63, 94, 0.1);
+  --color-warning: #fbbf24;
+  --color-warning-dim: rgba(251, 191, 36, 0.1);
+  --color-success: #34d399;
+  --color-success-dim: rgba(52, 211, 153, 0.1);
+  --color-info: #60a5fa;
+  --color-info-dim: rgba(96, 165, 250, 0.1);
 }
 
 * {
   border-color: var(--color-border);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 ::selection {
@@ -31,16 +46,47 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-bg);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: var(--color-border-hover);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a3a3a;
+  background: #3a3a42;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.25s ease-out;
+}
+
+input, select, textarea {
+  color-scheme: dark;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+}
+
+select option {
+  background: var(--color-surface);
+  color: var(--color-text);
 }

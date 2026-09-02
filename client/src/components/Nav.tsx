@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
@@ -41,12 +42,13 @@ export function Nav() {
     <header className="sticky top-0 z-50 border-b border-border bg-bg/80 backdrop-blur-xl">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2.5 group">
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-black font-bold text-base group-hover:scale-105 transition-transform duration-200">
-            v
-          </span>
-          <span className="text-lg font-semibold tracking-tight">
-            <span className="text-accent">v</span>cron
-          </span>
+          <Image
+            src="/logo.svg"
+            alt="vcron"
+            width={32}
+            height={32}
+            className="group-hover:scale-105 transition-transform duration-200"
+          />
         </Link>
         {username && (
           <div className="flex items-center gap-1 text-sm">
