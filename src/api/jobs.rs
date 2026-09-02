@@ -21,6 +21,7 @@ pub fn routes() -> Router<AppState> {
             get(get_one).put(update).delete(delete),
         )
         .route("/api/jobs/{id}/runs", get(list_runs))
+        .route("/api/runs", get(list_all_runs))
         .route("/api/stats", get(stats))
 }
 
@@ -128,6 +129,31 @@ async fn stats(
         .await
         .map_err(AppError::Database)?;
     Ok(Json(stats))
+}
+
+#[derive(Debug, serde::Deserialize)]
+struct RunListParams {
+    #[serde(default)]
+    page: Option<i64>,
+    #[serde(default)]
+    per_page: Option<i64>,
+    #[serde(default)]
+    status: Option<String>,
+}
+
+async fn list_all_runs(
+    State(state): State<AppState>,
+    Query(params): Query<RunListParams>,
+) -> AppResult<Json<Vec<queries::RunWithJobName>>> {
+    let page = params.page.unwrap_or(1).max(1);
+    let per_page = params.per_page.unwrap_or(50).clamp(1, 200);
+    let offset = (page - 1) * per_page;
+    let status_filter = params.status.as_deref().filter(|s| !s.is_empty());
+
+    let runs = queries::list_all_runs(&state.db, per_page, offset, status_filter)
+        .await
+        .map_err(AppError::Database)?;
+    Ok(Json(runs))
 }
 
 fn validate_job_input(

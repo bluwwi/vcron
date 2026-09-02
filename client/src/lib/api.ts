@@ -5,6 +5,7 @@ import type {
   Job,
   JobRun,
   PaginatedResult,
+  RunWithJobName,
   UpdateJobInput,
 } from "./types";
 
@@ -79,5 +80,10 @@ export const api = {
   listRuns: (id: string, page = 1, perPage = 20) =>
     request<JobRun[]>(
       `/api/jobs/${id}/runs?page=${page}&per_page=${perPage}`,
+    ),
+
+  listAllRuns: (page = 1, perPage = 50, status = "") =>
+    request<RunWithJobName[]>(
+      `/api/runs?page=${page}&per_page=${perPage}${status ? `&status=${status}` : ""}`,
     ),
 };

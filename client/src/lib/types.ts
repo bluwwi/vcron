@@ -32,6 +32,10 @@ export interface JobRun {
   finished_at: string | null;
 }
 
+export interface RunWithJobName extends JobRun {
+  job_name: string;
+}
+
 export interface DashboardStats {
   total_jobs: number;
   enabled_jobs: number;

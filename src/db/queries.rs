@@ -200,6 +200,54 @@ pub async fn list_runs_for_job(
     .await
 }
 
+#[derive(Debug, Clone, serde::Serialize, sqlx::FromRow)]
+pub struct RunWithJobName {
+    pub id: String,
+    pub job_id: String,
+    pub status: String,
+    pub status_code: Option<i32>,
+    pub response_body: Option<String>,
+    pub request_method: Option<String>,
+    pub request_url: Option<String>,
+    pub duration_ms: Option<i32>,
+    pub error_message: Option<String>,
+    pub attempt_number: i32,
+    pub started_at: DateTime<Utc>,
+    pub finished_at: Option<DateTime<Utc>>,
+    pub job_name: String,
+}
+
+pub async fn list_all_runs(
+    pool: &SqlitePool,
+    limit: i64,
+    offset: i64,
+    status_filter: Option<&str>,
+) -> Result<Vec<RunWithJobName>, sqlx::Error> {
+    if let Some(status) = status_filter {
+        sqlx::query_as::<_, RunWithJobName>(
+            "SELECT r.*, j.name as job_name FROM job_runs r
+             JOIN jobs j ON j.id = r.job_id
+             WHERE r.status = ?
+             ORDER BY r.started_at DESC LIMIT ? OFFSET ?",
+        )
+        .bind(status)
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(pool)
+        .await
+    } else {
+        sqlx::query_as::<_, RunWithJobName>(
+            "SELECT r.*, j.name as job_name FROM job_runs r
+             JOIN jobs j ON j.id = r.job_id
+             ORDER BY r.started_at DESC LIMIT ? OFFSET ?",
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(pool)
+        .await
+    }
+}
+
 pub async fn create_run(
     pool: &SqlitePool,
     run_id: Uuid,

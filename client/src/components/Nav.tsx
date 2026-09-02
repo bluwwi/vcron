@@ -20,6 +20,12 @@ export function Nav() {
             Dashboard
           </Link>
           <Link
+            href="/logs"
+            className="px-3 py-1.5 rounded-md text-text-dim hover:text-text hover:bg-surface-hover transition-colors"
+          >
+            Logs
+          </Link>
+          <Link
             href="/jobs/new"
             className="px-3 py-1.5 rounded-md text-text-dim hover:text-text hover:bg-surface-hover transition-colors"
           >
