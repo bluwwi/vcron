@@ -48,7 +48,7 @@ export default function NewAppPage() {
   const labelClass = "block text-xs font-medium uppercase tracking-wider text-text-dim mb-1.5";
 
   return (
-    <div className="space-y-6 max-w-xl">
+    <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 py-8 space-y-6 max-w-xl">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">New App</h1>
         <p className="text-text-dim text-sm mt-0.5">Register an API to schedule jobs against</p>

@@ -129,15 +129,6 @@ export function PixelLoader({ onComplete }: { onComplete?: () => void }) {
       style={{ backgroundColor: "#000000", opacity: 1, transition: "opacity 500ms ease-out" }}
     >
       <canvas ref={canvasRef} className="block" />
-      <div className="absolute bottom-12">
-        <Image
-          src="/textlogo.svg"
-          alt="vcron"
-          width={180}
-          height={40}
-          style={{ opacity: 0.6 }}
-        />
-      </div>
     </div>
   );
 }

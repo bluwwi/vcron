@@ -63,7 +63,7 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
   const fullUrl = `${job.app_base_url}${job.path}`;
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-8 space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-1">

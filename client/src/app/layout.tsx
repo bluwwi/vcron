@@ -25,12 +25,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${manrope.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-bg text-text">
         <Nav />
-        <main className="flex-1 mx-auto w-full max-w-6xl px-4 sm:px-6 py-8">
+        <main className="flex-1 w-full">
           {children}
         </main>
-        <footer className="border-t border-border py-4 text-center text-xs text-text-dim">
-          vcron &middot; cron job server
-        </footer>
       </body>
     </html>
   );

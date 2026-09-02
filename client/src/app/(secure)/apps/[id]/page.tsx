@@ -80,7 +80,7 @@ export default function AppDetailPage({ params }: { params: Promise<{ id: string
   if (!app) return <div className="text-text-dim">App not found</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-8 space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-1">

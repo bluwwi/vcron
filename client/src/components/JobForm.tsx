@@ -120,114 +120,201 @@ export function JobForm({ app, job, mode }: JobFormProps) {
     }
   }
 
-  const inputClass = "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-text-dim focus:border-accent focus:outline-none transition-colors";
-  const labelClass = "block text-xs font-medium uppercase tracking-wider text-text-dim mb-1.5";
-
   return (
     <form onSubmit={handleSubmit} className="space-y-5 max-w-2xl">
       {error && (
-        <div className="rounded-lg border border-danger/30 bg-danger/10 px-4 py-2.5 text-sm text-danger">
+        <div className="rounded-lg px-4 py-2.5 text-sm text-danger"
+          style={{ background: "rgba(244,63,94,0.08)", border: "1px solid rgba(244,63,94,0.2)" }}>
           {error}
         </div>
       )}
 
+      {/* App context */}
       <div>
-        <label className={labelClass}>App</label>
-        <div className="rounded-lg border border-border bg-surface px-3 py-2 text-sm">
+        <label className="block text-xs font-medium uppercase tracking-wider text-text-dim mb-1.5">App</label>
+        <div className="rounded-lg px-3 py-2.5 text-sm" style={{ background: "rgba(255,255,255,0.03)" }}>
           <span className="font-medium">{app.name}</span>
           <span className="text-text-dim font-mono ml-2">{app.base_url}</span>
         </div>
       </div>
 
+      {/* Name */}
       <div>
-        <label className={labelClass}>Name</label>
-        <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} placeholder="health-check" required />
+        <label className="block text-xs font-medium uppercase tracking-wider text-text-dim mb-1.5">Name</label>
+        <input
+          className="w-full rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-text-dimmer focus:outline-none transition-colors"
+          style={{ background: "rgba(255,255,255,0.03)" }}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="health-check"
+          required
+        />
       </div>
 
+      {/* Description */}
       <div>
-        <label className={labelClass}>Description</label>
-        <input className={inputClass} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What does this job do?" />
+        <label className="block text-xs font-medium uppercase tracking-wider text-text-dim mb-1.5">Description</label>
+        <input
+          className="w-full rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-text-dimmer focus:outline-none transition-colors"
+          style={{ background: "rgba(255,255,255,0.03)" }}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="What does this job do?"
+        />
       </div>
 
+      {/* Method + Enabled */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={labelClass}>Method</label>
-          <select className={inputClass} value={method} onChange={(e) => setMethod(e.target.value)}>
+          <label className="block text-xs font-medium uppercase tracking-wider text-text-dim mb-1.5">Method</label>
+          <select
+            className="w-full rounded-lg px-3 py-2.5 text-sm text-text focus:outline-none transition-colors"
+            style={{ background: "rgba(255,255,255,0.03)" }}
+            value={method}
+            onChange={(e) => setMethod(e.target.value)}
+          >
             {METHODS.map((m) => (
               <option key={m} value={m}>{m}</option>
             ))}
           </select>
         </div>
         <div>
-          <label className={labelClass}>Enabled</label>
-          <button type="button" onClick={() => setEnabled(!enabled)} className={`${inputClass} text-left flex items-center justify-between`}>
+          <label className="block text-xs font-medium uppercase tracking-wider text-text-dim mb-1.5">Enabled</label>
+          <button
+            type="button"
+            onClick={() => setEnabled(!enabled)}
+            className="w-full rounded-lg px-3 py-2.5 text-sm flex items-center justify-between focus:outline-none"
+            style={{ background: "rgba(255,255,255,0.03)" }}
+          >
             <span>{enabled ? "Yes" : "No"}</span>
-            <span className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${enabled ? "bg-accent" : "bg-zinc-700"}`}>
-              <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-black transition-transform ${enabled ? "translate-x-5" : "translate-x-1"}`} />
+            <span
+              className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors"
+              style={{ background: enabled ? "var(--color-accent)" : "#3a3a3e" }}
+            >
+              <span
+                className="inline-block h-3.5 w-3.5 transform rounded-full bg-black transition-transform"
+                style={{ transform: enabled ? "translateX(22px)" : "translateX(4px)" }}
+              />
             </span>
           </button>
         </div>
       </div>
 
+      {/* Path */}
       <div>
-        <label className={labelClass}>Path</label>
-        <input className={`${inputClass} font-mono`} value={path} onChange={(e) => setPath(e.target.value)} placeholder="/healthz" required />
-        <p className="mt-1 text-xs text-text-dim">
+        <label className="block text-xs font-medium uppercase tracking-wider text-text-dim mb-1.5">Path</label>
+        <input
+          className="w-full rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-text-dimmer focus:outline-none transition-colors font-mono"
+          style={{ background: "rgba(255,255,255,0.03)" }}
+          value={path}
+          onChange={(e) => setPath(e.target.value)}
+          placeholder="/healthz"
+          required
+        />
+        <p className="mt-1.5 text-xs text-text-dim">
           Full URL: <span className="font-mono text-accent">{app.base_url}{path || "/path"}</span>
         </p>
       </div>
 
+      {/* Schedule */}
       <div>
-        <label className={labelClass}>Schedule</label>
+        <label className="block text-xs font-medium uppercase tracking-wider text-text-dim mb-1.5">Schedule</label>
         <div className="grid grid-cols-2 gap-2">
-          <select className={inputClass} value={schedulePreset} onChange={(e) => onPresetChange(e.target.value)}>
+          <select
+            className="rounded-lg px-3 py-2.5 text-sm text-text focus:outline-none transition-colors"
+            style={{ background: "rgba(255,255,255,0.03)" }}
+            value={schedulePreset}
+            onChange={(e) => onPresetChange(e.target.value)}
+          >
             {SCHEDULE_PRESETS.map((p) => (
               <option key={p.value} value={p.value}>{p.label}</option>
             ))}
           </select>
           <input
-            className={`${inputClass} font-mono ${schedulePreset !== "custom" ? "opacity-60" : ""}`}
+            className="rounded-lg px-3 py-2.5 text-sm text-text focus:outline-none transition-colors font-mono"
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              opacity: schedulePreset !== "custom" ? 0.5 : 1,
+            }}
             value={cronExpression}
             onChange={(e) => { setCronExpression(e.target.value); setSchedulePreset("custom"); }}
             disabled={schedulePreset !== "custom"}
           />
         </div>
-        <p className="mt-1 text-xs text-text-dim">
+        <p className="mt-1.5 text-xs text-text-dim">
           {cronToHuman(cronExpression)} &middot; cron or interval:N format
         </p>
       </div>
 
+      {/* Advanced */}
       <details className="group">
         <summary className="cursor-pointer text-sm text-text-dim hover:text-text select-none">
           Advanced options
         </summary>
         <div className="mt-4 space-y-5">
           <div>
-            <label className={labelClass}>Headers (JSON)</label>
-            <textarea className={`${inputClass} font-mono h-24 resize-y`} value={headers} onChange={(e) => setHeaders(e.target.value)} placeholder='{"Authorization": "Bearer xxx"}' />
+            <label className="block text-xs font-medium uppercase tracking-wider text-text-dim mb-1.5">Headers (JSON)</label>
+            <textarea
+              className="w-full rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-text-dimmer focus:outline-none transition-colors font-mono h-24 resize-y"
+              style={{ background: "rgba(255,255,255,0.03)" }}
+              value={headers}
+              onChange={(e) => setHeaders(e.target.value)}
+              placeholder='{"Authorization": "Bearer xxx"}'
+            />
           </div>
           <div>
-            <label className={labelClass}>Request Body</label>
-            <textarea className={`${inputClass} font-mono h-24 resize-y`} value={body ?? ""} onChange={(e) => setBody(e.target.value)} placeholder='{"key": "value"}' />
+            <label className="block text-xs font-medium uppercase tracking-wider text-text-dim mb-1.5">Request Body</label>
+            <textarea
+              className="w-full rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-text-dimmer focus:outline-none transition-colors font-mono h-24 resize-y"
+              style={{ background: "rgba(255,255,255,0.03)" }}
+              value={body ?? ""}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder='{"key": "value"}'
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={labelClass}>Timeout (seconds)</label>
-              <input type="number" min={1} max={300} className={inputClass} value={timeoutSeconds} onChange={(e) => setTimeoutSeconds(Number(e.target.value))} />
+              <label className="block text-xs font-medium uppercase tracking-wider text-text-dim mb-1.5">Timeout (seconds)</label>
+              <input
+                type="number"
+                min={1}
+                max={300}
+                className="w-full rounded-lg px-3 py-2.5 text-sm text-text focus:outline-none transition-colors"
+                style={{ background: "rgba(255,255,255,0.03)" }}
+                value={timeoutSeconds}
+                onChange={(e) => setTimeoutSeconds(Number(e.target.value))}
+              />
             </div>
             <div>
-              <label className={labelClass}>Retry Count</label>
-              <input type="number" min={0} max={10} className={inputClass} value={retryCount} onChange={(e) => setRetryCount(Number(e.target.value))} />
+              <label className="block text-xs font-medium uppercase tracking-wider text-text-dim mb-1.5">Retry Count</label>
+              <input
+                type="number"
+                min={0}
+                max={10}
+                className="w-full rounded-lg px-3 py-2.5 text-sm text-text focus:outline-none transition-colors"
+                style={{ background: "rgba(255,255,255,0.03)" }}
+                value={retryCount}
+                onChange={(e) => setRetryCount(Number(e.target.value))}
+              />
             </div>
           </div>
         </div>
       </details>
 
+      {/* Buttons */}
       <div className="flex items-center gap-3 pt-2">
-        <button type="submit" disabled={saving} className="rounded-lg bg-accent px-5 py-2 text-sm font-medium text-black hover:bg-accent-dim transition-colors disabled:opacity-50">
+        <button
+          type="submit"
+          disabled={saving}
+          className="accent-btn px-5 py-2.5 text-sm disabled:opacity-50"
+        >
           {saving ? "Saving..." : mode === "create" ? "Create Job" : "Save Changes"}
         </button>
-        <button type="button" onClick={() => router.back()} className="rounded-lg border border-border bg-surface px-5 py-2 text-sm text-text-dim hover:text-text hover:bg-surface-hover transition-colors">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="ghost-btn px-5 py-2.5 text-sm"
+        >
           Cancel
         </button>
       </div>

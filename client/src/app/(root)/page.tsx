@@ -4,10 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRevealer } from "@/hooks/useRevealer";
+import { PixelLoader } from "@/components/PixelLoader";
+import { useInitialLoader } from "@/lib/useInitialLoader";
 
 export default function LandingPage() {
   useRevealer();
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
+  const { show: showLoader, complete: completeLoader } = useInitialLoader();
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
@@ -17,8 +20,12 @@ export default function LandingPage() {
 
   return (
     <div className="relative w-full overflow-x-hidden">
+      {showLoader && <PixelLoader onComplete={completeLoader} />}
       <div className="noise" />
       <div className="global-grid" />
+
+      {/* Mobile resolution notice */}
+      <MobileNotice />
 
       {/* ═══════════════ HERO ═══════════════ */}
       <section
@@ -38,89 +45,88 @@ export default function LandingPage() {
           className="relative z-20 mx-auto w-full max-w-7xl"
           style={{ padding: "0 clamp(1.5rem, 5vw, 5rem)" }}
         >
-          {/* Section label */}
-          <div className="reveal mb-8">
-            <p className="section-label">HTTP cron scheduler — Rust + SQLite — 2026</p>
-          </div>
-
-          {/* Massive title */}
+          {/* Single massive title — centered, fills viewport */}
           <h1
-            className="font-bold"
+            className="reveal font-bold text-center"
             style={{
-              fontSize: "clamp(3rem, 14vw, 12rem)",
-              lineHeight: "0.82",
-              letterSpacing: "-0.045em",
+              fontSize: "clamp(3.8rem, 21.2vw, 20rem)",
+              fontWeight: 620,
+              lineHeight: "0.84",
+              letterSpacing: "-0.035em",
               textTransform: "uppercase",
+              whiteSpace: "nowrap",
+              width: "100%",
+              margin: "0 auto",
+              display: "block",
             }}
           >
-            <span className="title-mask block">
-              <span className="line block">Schedule.</span>
-            </span>
-            <span className="title-mask block">
-              <span className="line block">
-                <span
-                  style={{
-                    WebkitTextStroke: "clamp(0.005rem, 0.15vw, 0.08rem) var(--color-text)",
-                    color: "transparent",
-                  }}
-                >
-                  Automate.
-                </span>
-              </span>
-            </span>
-            <span className="title-mask block">
-              <span className="line block" style={{ color: "var(--color-accent)" }}>
-                Relax.
-              </span>
-            </span>
+            vcron.
           </h1>
 
-          {/* Content row */}
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-12 gap-6 max-w-5xl">
-            <div className="reveal sm:col-span-7">
+          {/* Content split — full width, centered */}
+          <div className="mt-10 sm:mt-14 w-full grid grid-cols-1 sm:grid-cols-2 gap-8">
+            {/* Left column — description + tags + buttons */}
+            <div className="reveal">
               <p
-                style={{ fontSize: "clamp(1rem, 1.2vw, 1.25rem)" }}
-                className="text-text-dim leading-relaxed"
+                className="font-bold mb-4"
+                style={{ fontSize: "clamp(1.1rem, 2vw, 1.5rem)" }}
+              >
+                Cron jobs for HTTP endpoints.
+              </p>
+              <p
+                className="text-text-dim leading-relaxed mb-6"
+                style={{ fontSize: "clamp(0.9rem, 1vw, 1.1rem)" }}
               >
                 Register your APIs, create scheduled jobs, and let vcron hit
                 your endpoints on time — every time. No infrastructure needed.
               </p>
-            </div>
-            <div className="reveal sm:col-span-5 flex flex-wrap items-end gap-3 sm:justify-end">
-              {loggedIn === null ? (
-                <div className="h-11 w-32 animate-pulse rounded-lg bg-surface" />
-              ) : loggedIn ? (
-                <Link href="/dashboard" className="accent-btn px-7 py-3 text-sm">
-                  Go to Dashboard →
-                </Link>
-              ) : (
-                <>
-                  <Link href="/auth" className="accent-btn px-7 py-3 text-sm">
-                    Get Started
-                  </Link>
-                  <Link href="/dashboard" className="ghost-btn px-7 py-3 text-sm">
-                    Live Demo
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
 
-          {/* Stats row */}
-          <div className="mt-16 reveal grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-3xl">
-            {[
-              { num: "30s", label: "Minimum Interval" },
-              { num: "✓", label: "Cron Expressions" },
-              { num: "✓", label: "Auto Retries" },
-              { num: "✓", label: "Multi-App" },
-            ].map((s) => (
-              <div key={s.label}>
-                <p style={{ fontSize: "clamp(1.5rem, 3vw, 2.5rem)" }} className="font-bold text-accent">
-                  {s.num}
-                </p>
-                <p className="text-xs text-text-dimmer uppercase tracking-wider mt-1">{s.label}</p>
+              {/* Tech tags */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                {["Rust", "SQLite", "Axum", "Next.js", "JWT"].map((t) => (
+                  <span key={t} className="tech-pill">{t}</span>
+                ))}
               </div>
-            ))}
+
+              {/* Buttons */}
+              <div className="flex flex-wrap items-center gap-3">
+                {loggedIn === null ? (
+                  <div className="h-11 w-32 animate-pulse rounded-lg bg-surface" />
+                ) : loggedIn ? (
+                  <Link href="/dashboard" className="accent-btn px-6 py-3 text-sm">
+                    Go to Dashboard →
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/auth" className="accent-btn px-6 py-3 text-sm">
+                      Get Started
+                    </Link>
+                    <Link href="/dashboard" className="ghost-btn px-6 py-3 text-sm">
+                      Live Demo
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Right column — stats */}
+            <div className="reveal flex flex-col justify-center gap-5 sm:items-end sm:text-right">
+              <p className="text-text-dim leading-relaxed mb-2" style={{ fontSize: "clamp(0.9rem, 1vw, 1.1rem)" }}>
+                Building production-ready cron jobs with auto retries,
+                run history, and multi-app support.
+              </p>
+              {[
+                { num: "+", label: "30s minimum interval" },
+                { num: "+", label: "Cron & interval scheduling" },
+                { num: "+", label: "Auto retries with backoff" },
+                { num: "+", label: "Full run history logs" },
+              ].map((s) => (
+                <div key={s.label} className="flex items-center gap-3 sm:flex-row-reverse">
+                  <span className="text-2xl font-bold text-accent">{s.num}</span>
+                  <span className="text-sm text-text-dim">{s.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -137,11 +143,12 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════ FEATURES ═══════════════ */}
-      <section style={{ padding: "clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 5rem)" }}>
+      <section>
+        <div className="mx-auto w-full max-w-7xl" style={{ padding: "clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 5rem)" }}>
         <div className="reveal mb-12 sm:mb-16">
           <p className="section-label">Expertise</p>
           <h2
-            className="font-bold max-w-3xl"
+            className="font-bold"
             style={{
               fontSize: "clamp(2rem, 7vw, 5rem)",
               lineHeight: "0.85",
@@ -161,10 +168,10 @@ export default function LandingPage() {
           </h2>
         </div>
 
-        {/* Staggered 2-column grid */}
-        <div className="stagger-grid">
+        {/* Simple 3x2 grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((f) => (
-            <div key={f.num} className="reveal skill-card stagger-item">
+            <div key={f.num} className="reveal skill-card">
               <div
                 className="flex h-12 w-12 items-center justify-center rounded-2xl mb-5 transition-transform"
                 style={{ background: "rgba(202,255,97,0.12)", color: "var(--color-accent)" }}
@@ -182,14 +189,16 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
+        </div>
       </section>
 
       {/* ═══════════════ HOW IT WORKS ═══════════════ */}
-      <section style={{ padding: "clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 5rem)" }}>
+      <section>
+        <div className="mx-auto w-full max-w-7xl" style={{ padding: "clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 5rem)" }}>
         <div className="reveal mb-12 sm:mb-16">
           <p className="section-label">How it works</p>
           <h2
-            className="font-bold max-w-3xl"
+            className="font-bold"
             style={{
               fontSize: "clamp(2rem, 7vw, 5rem)",
               lineHeight: "0.85",
@@ -209,7 +218,7 @@ export default function LandingPage() {
           </h2>
         </div>
 
-        <div className="space-y-5 max-w-4xl">
+        <div className="space-y-5">
           {steps.map((step) => (
             <div key={step.num} className="reveal step-card">
               <div className="flex items-start gap-5 sm:gap-8">
@@ -237,14 +246,16 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
+        </div>
       </section>
 
       {/* ═══════════════ STATS ═══════════════ */}
-      <section style={{ padding: "clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 5rem)" }}>
+      <section>
+        <div className="mx-auto w-full max-w-7xl" style={{ padding: "clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 5rem)" }}>
         <div className="reveal mb-12">
           <p className="section-label">Highlights</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {[
             { num: "30s", label: "Minimum Interval" },
             { num: "10x", label: "Max Retry Count" },
@@ -256,10 +267,12 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
+        </div>
       </section>
 
       {/* ═══════════════ CTA ═══════════════ */}
-      <section style={{ padding: "clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 5rem)" }}>
+      <section>
+        <div className="mx-auto w-full max-w-7xl" style={{ padding: "clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 5rem)" }}>
         <div className="reveal step-card text-center" style={{ padding: "clamp(2.5rem, 6vw, 5rem)" }}>
           <h2
             className="font-bold mb-5"
@@ -285,12 +298,12 @@ export default function LandingPage() {
             </Link>
           )}
         </div>
+        </div>
       </section>
 
       {/* ═══════════════ FOOTER ═══════════════ */}
       <footer className="relative overflow-hidden" style={{ background: "#050505" }}>
-        <div style={{ padding: "clamp(3rem, 6vw, 5rem) clamp(1.5rem, 5vw, 5rem) 0" }}>
-          {/* Top row */}
+        <div className="mx-auto w-full max-w-7xl" style={{ padding: "clamp(3rem, 6vw, 5rem) clamp(1.5rem, 5vw, 5rem) 0" }}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-12">
             <div className="flex items-center gap-3">
               <Image src="/logo.svg" alt="vcron" width={32} height={32} />
@@ -308,17 +321,24 @@ export default function LandingPage() {
                   Sign In
                 </Link>
               )}
+              <a
+                href="https://github.com/bluwwi/vcron"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-text-dim hover:text-text transition-colors p-1"
+                title="GitHub"
+              >
+                <Image src="/github.svg" alt="GitHub" width={20} height={20} className="opacity-100" />
+              </a>
             </div>
           </div>
 
-          {/* Big footer text */}
           <div className="reveal" style={{ overflow: "hidden" }}>
             <p className="footer-big-text" style={{ fontSize: "clamp(3rem, 18vw, 16rem)" }}>
               vcron•
             </p>
           </div>
 
-          {/* Bottom bar */}
           <div
             className="flex flex-col sm:flex-row items-center justify-between gap-2 py-6"
             style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
@@ -421,3 +441,74 @@ const steps = [
     desc: "vcron hits your endpoints on schedule and logs every result. Check the logs page for status, duration and response bodies.",
   },
 ];
+
+function MobileNotice() {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      if (window.innerWidth < 768 && !sessionStorage.getItem("vcron_notice_dismissed")) {
+        setShow(true);
+      } else {
+        setShow(false);
+      }
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  function dismiss() {
+    sessionStorage.setItem("vcron_notice_dismissed", "1");
+    setShow(false);
+  }
+
+  if (!show) return null;
+
+  return (
+    <div
+      className="fixed bottom-4 left-1/2 z-[9998] -translate-x-1/2"
+      style={{
+        background: "rgba(13,14,15,0.95)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        border: "1px solid rgba(202,255,97,0.2)",
+        borderRadius: "16px",
+        padding: "14px 20px",
+        maxWidth: "calc(100vw - 2rem)",
+        boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
+      }}
+    >
+      <div className="flex items-center gap-3">
+        <svg
+          className="h-5 w-5 shrink-0"
+          style={{ color: "var(--color-accent)" }}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.5}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-1V5.25A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25v11.01a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25Z" />
+        </svg>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium" style={{ color: "var(--color-text)" }}>
+            Best viewed on desktop
+          </p>
+          <p className="text-xs" style={{ color: "var(--color-text-dim)" }}>
+            Switch to a larger resolution for the full experience
+          </p>
+        </div>
+        <button
+          onClick={dismiss}
+          className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+          style={{
+            background: "rgba(202,255,97,0.12)",
+            color: "var(--color-accent)",
+          }}
+        >
+          Got it
+        </button>
+      </div>
+    </div>
+  );
+}

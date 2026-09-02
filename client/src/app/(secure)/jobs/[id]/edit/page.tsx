@@ -33,7 +33,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
   if (!job || !app) return <div className="text-text-dim">Job not found</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-8 space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Edit Job</h1>
         <p className="text-text-dim text-sm mt-0.5">{job.name}</p>

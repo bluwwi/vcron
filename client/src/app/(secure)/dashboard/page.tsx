@@ -8,6 +8,7 @@ import { StatCard } from "@/components/StatCard";
 import { PixelLoader } from "@/components/PixelLoader";
 import { timeAgo } from "@/lib/utils";
 import { useTick } from "@/lib/useTick";
+import { useInitialLoader } from "@/lib/useInitialLoader";
 
 const Icons = {
   apps: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" /></svg>,
@@ -25,7 +26,7 @@ export default function Dashboard() {
   const [appStats, setAppStats] = useState<AppStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [showLoader, setShowLoader] = useState(true);
+  const { show: showLoader, complete: completeLoader } = useInitialLoader();
 
   const load = useCallback(async () => {
     try {
@@ -53,7 +54,7 @@ export default function Dashboard() {
 
   if (error) return (
     <div>
-      {showLoader && <PixelLoader onComplete={() => setShowLoader(false)} />}
+      {showLoader && <PixelLoader onComplete={completeLoader} />}
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-danger-dim">
           <svg className="h-6 w-6 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>
@@ -67,8 +68,8 @@ export default function Dashboard() {
 
   return (
     <>
-      {showLoader && <PixelLoader onComplete={() => setShowLoader(false)} />}
-      <div className="space-y-8 animate-fadeIn">
+      {showLoader && <PixelLoader onComplete={completeLoader} />}
+    <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 py-8 space-y-8 animate-fadeIn">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-text-dim text-sm mt-1">Monitor and manage your scheduled jobs</p>

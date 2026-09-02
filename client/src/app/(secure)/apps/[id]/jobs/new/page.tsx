@@ -20,17 +20,17 @@ export default function NewJobPage({ params }: { params: Promise<{ id: string }>
     api.getApp(id).then(setApp).finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <div className="text-text-dim animate-pulse">Loading...</div>;
-  if (!app) return <div className="text-text-dim">App not found</div>;
+  if (loading) return <div className="mx-auto max-w-7xl px-6 sm:px-8 py-8 text-text-dim animate-pulse">Loading...</div>;
+  if (!app) return <div className="mx-auto max-w-7xl px-6 sm:px-8 py-8 text-text-dim">App not found</div>;
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="mx-auto w-full max-w-7xl px-6 sm:px-8 py-8">
+      <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight">New Job</h1>
-        <p className="text-text-dim text-sm mt-0.5">
-          <Link href={`/apps/${app.id}`} className="hover:text-accent">{app.name}</Link>
-          {" / "}
-          <span className="font-mono">{app.base_url}</span>
+        <p className="text-text-dim text-sm mt-1">
+          <Link href={`/apps/${app.id}`} className="hover:text-accent transition-colors">{app.name}</Link>
+          <span className="text-text-dimmer mx-1">/</span>
+          <span className="font-mono text-text-dim">{app.base_url}</span>
         </p>
       </div>
       <JobForm app={app} mode="create" />

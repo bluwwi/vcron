@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { api } from "@/lib/api";
 
 const navItems = [
@@ -13,20 +13,30 @@ const navItems = [
 
 export function Nav() {
   const router = useRouter();
+  const pathname = usePathname();
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch("/api/auth/me", { credentials: "include" })
-      .then(async (r) => {
-        if (r.ok) {
-          const data = await r.json();
-          setUsername(data.username);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+  const checkAuth = useCallback(async () => {
+    try {
+      const r = await fetch("/api/auth/me", { credentials: "include" });
+      if (r.ok) {
+        const data = await r.json();
+        setUsername(data.username);
+      } else {
+        setUsername(null);
+      }
+    } catch {
+      setUsername(null);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  // Re-check auth on mount AND on every route change
+  useEffect(() => {
+    checkAuth();
+  }, [pathname, checkAuth]);
 
   async function handleLogout() {
     try {
@@ -34,13 +44,14 @@ export function Nav() {
     } catch {
       // ignore
     }
+    setUsername(null);
     router.push("/");
     router.refresh();
   }
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-bg/80 backdrop-blur-xl">
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 sm:px-8">
         <Link href="/" className="flex items-center gap-2.5 group">
           <Image
             src="/logo.svg"
@@ -88,12 +99,23 @@ export function Nav() {
           </div>
         )}
         {!loading && !username && (
-          <Link
-            href="/auth"
-            className="rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-black hover:bg-accent-dim transition-colors"
-          >
-            Sign In
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/auth"
+              className="rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-black hover:bg-accent-dim transition-colors"
+            >
+              Sign In
+            </Link>
+            <a
+              href="https://github.com/bluwwi/vcron"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-text-dim hover:text-text transition-colors p-1"
+              title="GitHub"
+            >
+              <Image src="/github.svg" alt="GitHub" width={20} height={20} className="opacity-100" />
+            </a>
+          </div>
         )}
       </nav>
     </header>

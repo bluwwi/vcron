@@ -20,14 +20,13 @@
   --color-info: #60a5fa;
 }
 
-* {
-  margin: 0;
-  padding: 0;
+*, *::before, *::after {
   box-sizing: border-box;
 }
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -36,7 +35,7 @@ body {
   font-family: var(--font-manrope), 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 ::selection {
@@ -261,21 +260,31 @@ select option { background: var(--color-surface); color: var(--color-text); }
 
 /* ── Buttons ── */
 .accent-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: var(--color-accent);
   color: #000;
   font-weight: 600;
   border-radius: 12px;
   transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+  cursor: pointer;
+  text-decoration: none;
 }
 .accent-btn:hover {
   background: var(--color-accent-dim);
   box-shadow: 0 10px 30px rgba(202,255,97,0.3);
 }
 .ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: rgba(255,255,255,0.04);
   color: var(--color-text-dim);
   border-radius: 12px;
   transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
 }
 .ghost-btn:hover {
   background: rgba(255,255,255,0.08);
