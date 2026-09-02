@@ -440,10 +440,6 @@ pub async fn get_dashboard_stats(
         .and_local_timezone(Utc)
         .unwrap()
         .to_rfc3339();
-    let one_hour_ago = Utc::now()
-        .checked_sub_signed(chrono::Duration::hours(1))
-        .unwrap_or_else(Utc::now)
-        .to_rfc3339();
 
     let total_apps: i64 =
         sqlx::query_scalar("SELECT count(*) FROM apps WHERE user_id = ?")
@@ -470,14 +466,13 @@ pub async fn get_dashboard_stats(
     .bind(&now)
     .fetch_one(pool)
     .await?;
-    let recent_failures: i64 = sqlx::query_scalar(
+    let total_requests: i64 = sqlx::query_scalar(
         "SELECT count(*) FROM job_runs r
          JOIN jobs j ON j.id = r.job_id
          JOIN apps a ON a.id = j.app_id
-         WHERE a.user_id = ? AND r.status IN ('failed', 'timeout') AND r.started_at > ?",
+         WHERE a.user_id = ?",
     )
     .bind(user_id)
-    .bind(&one_hour_ago)
     .fetch_one(pool)
     .await?;
     let runs_today: i64 = sqlx::query_scalar(
@@ -496,7 +491,7 @@ pub async fn get_dashboard_stats(
         total_jobs,
         enabled_jobs,
         due_jobs,
-        recent_failures,
+        total_requests,
         runs_today,
     })
 }

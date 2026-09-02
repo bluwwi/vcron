@@ -77,7 +77,7 @@ export interface DashboardStats {
   total_jobs: number;
   enabled_jobs: number;
   due_jobs: number;
-  recent_failures: number;
+  total_requests: number;
   runs_today: number;
 }
 

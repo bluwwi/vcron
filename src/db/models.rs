@@ -207,7 +207,7 @@ pub struct DashboardStats {
     pub total_jobs: i64,
     pub enabled_jobs: i64,
     pub due_jobs: i64,
-    pub recent_failures: i64,
+    pub total_requests: i64,
     pub runs_today: i64,
 }
 

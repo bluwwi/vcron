@@ -80,7 +80,7 @@ export default function Dashboard() {
           <StatCard label="Total Jobs" value={stats?.total_jobs ?? 0} icon={Icons.jobs} />
           <StatCard label="Active" value={stats?.enabled_jobs ?? 0} accent="success" icon={Icons.active} />
           <StatCard label="Due Now" value={stats?.due_jobs ?? 0} accent="warning" icon={Icons.due} />
-          <StatCard label="Failures (1h)" value={stats?.recent_failures ?? 0} accent={stats && stats.recent_failures > 0 ? "danger" : "default"} icon={Icons.fail} />
+          <StatCard label="Total Requests" value={stats?.total_requests ?? 0} accent="info" icon={Icons.runs} />
           <StatCard label="Runs Today" value={stats?.runs_today ?? 0} accent="info" icon={Icons.runs} />
         </div>
 

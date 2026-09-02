@@ -25,13 +25,11 @@ export default function LandingPage() {
       <div className="noise" />
       <div className="global-grid" />
 
-      {/* Mobile resolution notice */}
-      <MobileNotice />
 
       {/* ═══════════════ HERO ═══════════════ */}
       <section
         className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-center overflow-hidden"
-        style={{ paddingTop: "135px" }}
+        style={{ paddingTop: "100px" }}
       >
         {/* Ambient glow */}
         <div
