@@ -23,7 +23,7 @@ async function request<T>(
   };
 
   const method = options.method || "GET";
-  const res = await fetch(path, { ...options, headers });
+  const res = await fetch(path, { ...options, headers, credentials: "include" });
 
   console.log(`[vcron] ${method} ${path} → ${res.status}`);
 
@@ -44,6 +44,14 @@ async function request<T>(
 }
 
 export const api = {
+  // Auth
+  auth: (mode: "login" | "register", input: { username: string; password: string }) =>
+    request<{ user: unknown; token: string }>(`/api/auth/${mode}`, {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+  logout: () => request<void>("/api/auth/logout", { method: "POST" }),
+
   // Apps
   listApps: () => request<App[]>("/api/apps"),
   getApp: (id: string) => request<App>(`/api/apps/${id}`),
