@@ -21,9 +21,9 @@ impl Config {
                 .expect("PORT must be a number"),
             log_level: env::var("RUST_LOG").unwrap_or_else(|_| "info".into()),
             scheduler_interval_seconds: env::var("SCHEDULER_INTERVAL_SECONDS")
-                .unwrap_or_else(|_| "30".into())
+                .unwrap_or_else(|_| "5".into())
                 .parse()
-                .unwrap_or(30),
+                .unwrap_or(5),
         }
     }
 }
