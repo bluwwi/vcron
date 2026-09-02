@@ -95,12 +95,17 @@ select option {
 /* Outline text */
 .outline-text {
   color: transparent;
-  -webkit-text-stroke: 1.5px var(--color-text);
+  -webkit-text-stroke: clamp(0.5px, 0.15vw, 1.5px) var(--color-text);
 }
 
 .outline-accent {
   color: transparent;
-  -webkit-text-stroke: 1.5px var(--color-accent);
+  -webkit-text-stroke: clamp(0.5px, 0.15vw, 1.5px) var(--color-accent);
+}
+
+.outline-black {
+  color: transparent;
+  -webkit-text-stroke: clamp(0.005rem, 0.15vw, 1rem) #000000;
 }
 
 /* Glass card */
@@ -182,20 +187,20 @@ select option {
   position: relative;
 }
 
-.marquee-inner {
-  display: inline-flex;
+.marquee-content {
+  display: inline-block;
   white-space: nowrap;
-  animation: marquee-scroll 20s linear infinite;
+  animation: marquee 45s linear infinite;
   will-change: transform;
 }
 
-.marquee-inner:hover {
+.marquee-content:hover {
   animation-play-state: paused;
 }
 
-@keyframes marquee-scroll {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-50%, 0, 0); }
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 /* Hover spotlight */
