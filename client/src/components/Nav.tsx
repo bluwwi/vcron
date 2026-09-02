@@ -72,16 +72,8 @@ export function Nav() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              href="/apps/new"
-              className="ml-2 flex items-center gap-1.5 rounded-lg bg-accent px-3.5 py-1.5 text-sm font-medium text-black hover:bg-accent-dim transition-colors"
-            >
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-              New App
-            </Link>
-            <div className="ml-2 flex items-center gap-2 border-l border-border pl-3">
+
+            <div className="flex items-center gap-2 border-l border-border ">
 
               <span className="text-text-dim text-sm hidden sm:block">{username}</span>
               <button
