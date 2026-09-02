@@ -25,8 +25,6 @@ async function request<T>(
   const method = options.method || "GET";
   const res = await fetch(path, { ...options, headers, credentials: "include" });
 
-  console.log(`[vcron] ${method} ${path} → ${res.status}`);
-
   if (!res.ok) {
     let message = `HTTP ${res.status}`;
     try {
@@ -35,7 +33,6 @@ async function request<T>(
     } catch {
       // ignore parse error
     }
-    console.error(`[vcron] ${method} ${path} failed: ${message}`);
     throw new Error(message);
   }
 
