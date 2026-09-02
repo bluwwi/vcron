@@ -46,7 +46,7 @@ async fn create(
 
     let id = Uuid::new_v4();
     let next_run = calculate_next_run(&input.cron_expression, Utc::now())
-        .map_err(|e| AppError::Validation(e))?;
+        .map_err(AppError::Validation)?;
 
     let job = queries::create_job(&state.db, id, &input, Some(next_run))
         .await
@@ -56,7 +56,7 @@ async fn create(
 
 async fn get_one(
     State(state): State<AppState>,
-    Path(id): Path<Uuid>,
+    Path(id): Path<String>,
 ) -> AppResult<Json<Job>> {
     let job = queries::get_job(&state.db, id)
         .await
@@ -66,7 +66,7 @@ async fn get_one(
 
 async fn update(
     State(state): State<AppState>,
-    Path(id): Path<Uuid>,
+    Path(id): Path<String>,
     Json(input): Json<UpdateJobInput>,
 ) -> AppResult<Json<Job>> {
     if let Some(ref expr) = input.cron_expression {
@@ -98,7 +98,7 @@ async fn update(
 
 async fn delete(
     State(state): State<AppState>,
-    Path(id): Path<Uuid>,
+    Path(id): Path<String>,
 ) -> AppResult<StatusCode> {
     queries::delete_job(&state.db, id)
         .await
@@ -108,7 +108,7 @@ async fn delete(
 
 async fn list_runs(
     State(state): State<AppState>,
-    Path(id): Path<Uuid>,
+    Path(id): Path<String>,
     Query(params): Query<JobListParams>,
 ) -> AppResult<Json<Vec<JobRun>>> {
     let per_page = params.per_page.unwrap_or(20).clamp(1, 100);

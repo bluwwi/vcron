@@ -44,6 +44,13 @@ export function timeUntil(dateStr: string | null): string {
 }
 
 export function cronToHuman(expr: string): string {
+  if (expr.startsWith("interval:")) {
+    const secs = expr.slice(9);
+    if (secs === "30") return "Every 30 seconds";
+    if (secs === "15") return "Every 15 seconds";
+    if (secs === "10") return "Every 10 seconds";
+    return `Every ${secs}s`;
+  }
   const presets: Record<string, string> = {
     "*/1 * * * *": "Every minute",
     "*/5 * * * *": "Every 5 minutes",

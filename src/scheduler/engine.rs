@@ -28,7 +28,7 @@ async fn tick(state: &AppState) -> anyhow::Result<()> {
     let due = queries::get_due_jobs(&state.db, 50).await?;
 
     for job in due {
-        let job_id = job.id;
+        let job_id = job.id.clone();
         let expr = job.cron_expression.clone();
         let pool = state.db.clone();
 
@@ -37,7 +37,7 @@ async fn tick(state: &AppState) -> anyhow::Result<()> {
             let method = job.method.clone();
             let url = job.url.clone();
 
-            if let Err(e) = queries::create_run(&pool, run_id, job_id, 1, &method, &url).await {
+            if let Err(e) = queries::create_run(&pool, run_id, job_id.clone(), 1, &method, &url).await {
                 error!("failed to create run record for job {job_id}: {e}");
                 return;
             }
@@ -58,7 +58,7 @@ async fn tick(state: &AppState) -> anyhow::Result<()> {
 
             let status = if result.status == "success" { "success" } else { "failed" };
             if let Err(e) =
-                queries::update_job_timestamps(&pool, job_id, status, next_run).await
+                queries::update_job_timestamps(&pool, job_id.clone(), status, next_run).await
             {
                 error!("failed to update job timestamps for {job_id}: {e}");
             }

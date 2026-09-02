@@ -43,9 +43,9 @@ pub async fn count_jobs(pool: &SqlitePool, enabled_only: bool) -> Result<i64, sq
     }
 }
 
-pub async fn get_job(pool: &SqlitePool, id: Uuid) -> Result<Job, sqlx::Error> {
+pub async fn get_job(pool: &SqlitePool, id: String) -> Result<Job, sqlx::Error> {
     sqlx::query_as::<_, Job>("SELECT * FROM jobs WHERE id = ?")
-        .bind(id.to_string())
+        .bind(id)
         .fetch_one(pool)
         .await
 }
@@ -91,7 +91,7 @@ pub async fn create_job(
 
 pub async fn update_job(
     pool: &SqlitePool,
-    id: Uuid,
+    id: String,
     input: &UpdateJobInput,
     next_run_at: Option<DateTime<Utc>>,
 ) -> Result<Job, sqlx::Error> {
@@ -129,14 +129,14 @@ pub async fn update_job(
     .bind(input.enabled)
     .bind(&next_str)
     .bind(&next_str)
-    .bind(id.to_string())
+    .bind(id)
     .fetch_one(pool)
     .await
 }
 
-pub async fn delete_job(pool: &SqlitePool, id: Uuid) -> Result<(), sqlx::Error> {
+pub async fn delete_job(pool: &SqlitePool, id: String) -> Result<(), sqlx::Error> {
     let result = sqlx::query("DELETE FROM jobs WHERE id = ?")
-        .bind(id.to_string())
+        .bind(id)
         .execute(pool)
         .await?;
 
@@ -162,7 +162,7 @@ pub async fn get_due_jobs(pool: &SqlitePool, limit: i64) -> Result<Vec<Job>, sql
 
 pub async fn update_job_timestamps(
     pool: &SqlitePool,
-    id: Uuid,
+    id: String,
     status: &str,
     next_run_at: Option<DateTime<Utc>>,
 ) -> Result<(), sqlx::Error> {
@@ -178,7 +178,7 @@ pub async fn update_job_timestamps(
     .bind(now)
     .bind(status)
     .bind(&next_str)
-    .bind(id.to_string())
+    .bind(id)
     .execute(pool)
     .await?;
     Ok(())
@@ -186,14 +186,14 @@ pub async fn update_job_timestamps(
 
 pub async fn list_runs_for_job(
     pool: &SqlitePool,
-    job_id: Uuid,
+    job_id: String,
     limit: i64,
     offset: i64,
 ) -> Result<Vec<JobRun>, sqlx::Error> {
     sqlx::query_as::<_, JobRun>(
         "SELECT * FROM job_runs WHERE job_id = ? ORDER BY started_at DESC LIMIT ? OFFSET ?",
     )
-    .bind(job_id.to_string())
+    .bind(job_id)
     .bind(limit)
     .bind(offset)
     .fetch_all(pool)
@@ -203,7 +203,7 @@ pub async fn list_runs_for_job(
 pub async fn create_run(
     pool: &SqlitePool,
     run_id: Uuid,
-    job_id: Uuid,
+    job_id: String,
     attempt: i32,
     method: &str,
     url: &str,
@@ -213,7 +213,7 @@ pub async fn create_run(
          VALUES (?, ?, 'running', ?, ?, ?, datetime('now'))",
     )
     .bind(run_id.to_string())
-    .bind(job_id.to_string())
+    .bind(job_id)
     .bind(attempt)
     .bind(method)
     .bind(url)

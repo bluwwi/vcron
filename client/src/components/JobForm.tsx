@@ -12,6 +12,7 @@ interface JobFormProps {
 }
 
 const SCHEDULE_PRESETS = [
+  { label: "Every 30 seconds", value: "interval:30" },
   { label: "Every minute", value: "*/1 * * * *" },
   { label: "Every 5 minutes", value: "*/5 * * * *" },
   { label: "Every 10 minutes", value: "*/10 * * * *" },
@@ -214,7 +215,7 @@ export function JobForm({ job, mode }: JobFormProps) {
           />
         </div>
         <p className="mt-1 text-xs text-text-dim">
-          {cronToHuman(cronExpression)} &middot; 5-field cron (min hour dom mon dow) — minimum is 1 minute
+          {cronToHuman(cronExpression)} &middot; cron or interval:N format — min 1min for cron, 30s for intervals
         </p>
       </div>
 
