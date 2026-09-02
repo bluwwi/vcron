@@ -31,13 +31,13 @@ async fn tick(state: &AppState) -> anyhow::Result<()> {
         let job_id = job.id.clone();
         let expr = job.cron_expression.clone();
         let pool = state.db.clone();
+        let full_url = format!("{}{}", job.app_base_url, job.path);
 
         tokio::spawn(async move {
             let run_id = uuid::Uuid::new_v4();
             let method = job.method.clone();
-            let url = job.url.clone();
 
-            if let Err(e) = queries::create_run(&pool, run_id, job_id.clone(), 1, &method, &url).await {
+            if let Err(e) = queries::create_run(&pool, run_id, job_id.clone(), 1, &method, &full_url).await {
                 error!("failed to create run record for job {job_id}: {e}");
                 return;
             }

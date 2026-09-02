@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS job_runs (
                         CHECK (status IN ('running', 'success', 'failed', 'timeout', 'cancelled')),
     status_code     INTEGER,
     response_body   TEXT,
-    request_method TEXT,
+    request_method  TEXT,
     request_url     TEXT,
     duration_ms     INTEGER,
     error_message   TEXT,

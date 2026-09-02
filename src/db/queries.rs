@@ -3,44 +3,110 @@ use sqlx::SqlitePool;
 use uuid::Uuid;
 
 use super::models::{
-    CreateJobInput, DashboardStats, Job, JobRun, PaginatedResult, RunResult, UpdateJobInput,
+    App, AppStats, CreateAppInput, CreateJobInput, DashboardStats, Job, JobRun, JobWithApp,
+    PaginatedResult, RunResult, RunWithJobAndApp, UpdateAppInput, UpdateJobInput,
 };
 
-pub async fn list_jobs(
-    pool: &SqlitePool,
-    enabled_only: bool,
-    limit: i64,
-    offset: i64,
-) -> Result<Vec<Job>, sqlx::Error> {
-    if enabled_only {
-        sqlx::query_as::<_, Job>(
-            "SELECT * FROM jobs WHERE enabled = true ORDER BY created_at DESC LIMIT ? OFFSET ?",
-        )
-        .bind(limit)
-        .bind(offset)
+// ──── APP QUERIES ────
+
+pub async fn list_apps(pool: &SqlitePool) -> Result<Vec<App>, sqlx::Error> {
+    sqlx::query_as::<_, App>("SELECT * FROM apps ORDER BY created_at DESC")
         .fetch_all(pool)
         .await
-    } else {
-        sqlx::query_as::<_, Job>(
-            "SELECT * FROM jobs ORDER BY created_at DESC LIMIT ? OFFSET ?",
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(pool)
-        .await
-    }
 }
 
-pub async fn count_jobs(pool: &SqlitePool, enabled_only: bool) -> Result<i64, sqlx::Error> {
-    if enabled_only {
-        sqlx::query_scalar("SELECT count(*) FROM jobs WHERE enabled = true")
-            .fetch_one(pool)
-            .await
-    } else {
-        sqlx::query_scalar("SELECT count(*) FROM jobs")
-            .fetch_one(pool)
-            .await
+pub async fn get_app(pool: &SqlitePool, id: String) -> Result<App, sqlx::Error> {
+    sqlx::query_as::<_, App>("SELECT * FROM apps WHERE id = ?")
+        .bind(id)
+        .fetch_one(pool)
+        .await
+}
+
+pub async fn create_app(
+    pool: &SqlitePool,
+    id: Uuid,
+    input: &CreateAppInput,
+) -> Result<App, sqlx::Error> {
+    let description = input.description.clone().unwrap_or_default();
+    sqlx::query_as::<_, App>(
+        "INSERT INTO apps (id, name, base_url, description)
+         VALUES (?, ?, ?, ?)
+         RETURNING *",
+    )
+    .bind(id.to_string())
+    .bind(&input.name)
+    .bind(&input.base_url)
+    .bind(&description)
+    .fetch_one(pool)
+    .await
+}
+
+pub async fn update_app(
+    pool: &SqlitePool,
+    id: String,
+    input: &UpdateAppInput,
+) -> Result<App, sqlx::Error> {
+    sqlx::query_as::<_, App>(
+        "UPDATE apps SET
+            name = COALESCE(?, name),
+            base_url = COALESCE(?, base_url),
+            description = COALESCE(?, description)
+         WHERE id = ?
+         RETURNING *",
+    )
+    .bind(&input.name)
+    .bind(&input.base_url)
+    .bind(&input.description)
+    .bind(&id)
+    .fetch_one(pool)
+    .await
+}
+
+pub async fn delete_app(pool: &SqlitePool, id: String) -> Result<(), sqlx::Error> {
+    let result = sqlx::query("DELETE FROM apps WHERE id = ?")
+        .bind(id)
+        .execute(pool)
+        .await?;
+    if result.rows_affected() == 0 {
+        return Err(sqlx::Error::RowNotFound);
     }
+    Ok(())
+}
+
+pub async fn app_stats(pool: &SqlitePool) -> Result<Vec<AppStats>, sqlx::Error> {
+    sqlx::query_as::<_, AppStats>(
+        "SELECT
+            a.id as app_id,
+            (SELECT count(*) FROM jobs WHERE app_id = a.id) as job_count,
+            (SELECT count(*) FROM jobs WHERE app_id = a.id AND enabled = true) as enabled_count,
+            (SELECT MAX(j.last_run_at) FROM jobs j WHERE j.app_id = a.id) as last_run
+         FROM apps a
+         ORDER BY a.created_at DESC",
+    )
+    .fetch_all(pool)
+    .await
+}
+
+// ──── JOB QUERIES ────
+
+pub async fn list_jobs_for_app(pool: &SqlitePool, app_id: String) -> Result<Vec<Job>, sqlx::Error> {
+    sqlx::query_as::<_, Job>(
+        "SELECT * FROM jobs WHERE app_id = ? ORDER BY created_at DESC",
+    )
+    .bind(app_id)
+    .fetch_all(pool)
+    .await
+}
+
+pub async fn list_all_jobs_with_app(pool: &SqlitePool) -> Result<Vec<JobWithApp>, sqlx::Error> {
+    sqlx::query_as::<_, JobWithApp>(
+        "SELECT j.*, a.name as app_name, a.base_url as app_base_url
+         FROM jobs j
+         JOIN apps a ON a.id = j.app_id
+         ORDER BY j.created_at DESC",
+    )
+    .fetch_all(pool)
+    .await
 }
 
 pub async fn get_job(pool: &SqlitePool, id: String) -> Result<Job, sqlx::Error> {
@@ -50,12 +116,26 @@ pub async fn get_job(pool: &SqlitePool, id: String) -> Result<Job, sqlx::Error> 
         .await
 }
 
+pub async fn get_job_with_app(pool: &SqlitePool, id: String) -> Result<JobWithApp, sqlx::Error> {
+    sqlx::query_as::<_, JobWithApp>(
+        "SELECT j.*, a.name as app_name, a.base_url as app_base_url
+         FROM jobs j
+         JOIN apps a ON a.id = j.app_id
+         WHERE j.id = ?",
+    )
+    .bind(id)
+    .fetch_one(pool)
+    .await
+}
+
 pub async fn create_job(
     pool: &SqlitePool,
     id: Uuid,
+    app_id: String,
     input: &CreateJobInput,
     next_run_at: Option<DateTime<Utc>>,
 ) -> Result<Job, sqlx::Error> {
+    let path = input.path.clone().unwrap_or_else(|| "/".into());
     let method = input.method.clone().unwrap_or_else(|| "GET".into());
     let headers = input
         .headers
@@ -69,15 +149,16 @@ pub async fn create_job(
     let next_str = next_run_at.map(|d| d.to_rfc3339());
 
     sqlx::query_as::<_, Job>(
-        "INSERT INTO jobs (id, name, description, cron_expression, url, method, headers, body, timeout_seconds, retry_count, enabled, next_run_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        "INSERT INTO jobs (id, app_id, name, description, cron_expression, path, method, headers, body, timeout_seconds, retry_count, enabled, next_run_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          RETURNING *",
     )
     .bind(id.to_string())
+    .bind(&app_id)
     .bind(&input.name)
     .bind(&description)
     .bind(&input.cron_expression)
-    .bind(&input.url)
+    .bind(&path)
     .bind(&method)
     .bind(&headers_str)
     .bind(&input.body)
@@ -106,7 +187,7 @@ pub async fn update_job(
             name = COALESCE(?, name),
             description = COALESCE(?, description),
             cron_expression = COALESCE(?, cron_expression),
-            url = COALESCE(?, url),
+            path = COALESCE(?, path),
             method = COALESCE(?, method),
             headers = COALESCE(?, headers),
             body = COALESCE(?, body),
@@ -120,7 +201,7 @@ pub async fn update_job(
     .bind(&input.name)
     .bind(&input.description)
     .bind(&input.cron_expression)
-    .bind(&input.url)
+    .bind(&input.path)
     .bind(&input.method)
     .bind(&headers_str)
     .bind(&input.body)
@@ -129,7 +210,7 @@ pub async fn update_job(
     .bind(input.enabled)
     .bind(&next_str)
     .bind(&next_str)
-    .bind(id)
+    .bind(&id)
     .fetch_one(pool)
     .await
 }
@@ -139,19 +220,20 @@ pub async fn delete_job(pool: &SqlitePool, id: String) -> Result<(), sqlx::Error
         .bind(id)
         .execute(pool)
         .await?;
-
     if result.rows_affected() == 0 {
         return Err(sqlx::Error::RowNotFound);
     }
     Ok(())
 }
 
-pub async fn get_due_jobs(pool: &SqlitePool, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
+pub async fn get_due_jobs(pool: &SqlitePool, limit: i64) -> Result<Vec<JobWithApp>, sqlx::Error> {
     let now = Utc::now().to_rfc3339();
-    sqlx::query_as::<_, Job>(
-        "SELECT * FROM jobs
-         WHERE enabled = true AND next_run_at IS NOT NULL AND next_run_at <= ?
-         ORDER BY next_run_at ASC
+    sqlx::query_as::<_, JobWithApp>(
+        "SELECT j.*, a.name as app_name, a.base_url as app_base_url
+         FROM jobs j
+         JOIN apps a ON a.id = j.app_id
+         WHERE j.enabled = true AND j.next_run_at IS NOT NULL AND j.next_run_at <= ?
+         ORDER BY j.next_run_at ASC
          LIMIT ?",
     )
     .bind(now)
@@ -184,6 +266,8 @@ pub async fn update_job_timestamps(
     Ok(())
 }
 
+// ──── RUN QUERIES ────
+
 pub async fn list_runs_for_job(
     pool: &SqlitePool,
     job_id: String,
@@ -200,33 +284,18 @@ pub async fn list_runs_for_job(
     .await
 }
 
-#[derive(Debug, Clone, serde::Serialize, sqlx::FromRow)]
-pub struct RunWithJobName {
-    pub id: String,
-    pub job_id: String,
-    pub status: String,
-    pub status_code: Option<i32>,
-    pub response_body: Option<String>,
-    pub request_method: Option<String>,
-    pub request_url: Option<String>,
-    pub duration_ms: Option<i32>,
-    pub error_message: Option<String>,
-    pub attempt_number: i32,
-    pub started_at: DateTime<Utc>,
-    pub finished_at: Option<DateTime<Utc>>,
-    pub job_name: String,
-}
-
 pub async fn list_all_runs(
     pool: &SqlitePool,
     limit: i64,
     offset: i64,
     status_filter: Option<&str>,
-) -> Result<Vec<RunWithJobName>, sqlx::Error> {
+) -> Result<Vec<RunWithJobAndApp>, sqlx::Error> {
     if let Some(status) = status_filter {
-        sqlx::query_as::<_, RunWithJobName>(
-            "SELECT r.*, j.name as job_name FROM job_runs r
+        sqlx::query_as::<_, RunWithJobAndApp>(
+            "SELECT r.*, j.name as job_name, a.name as app_name, a.base_url as app_base_url
+             FROM job_runs r
              JOIN jobs j ON j.id = r.job_id
+             JOIN apps a ON a.id = j.app_id
              WHERE r.status = ?
              ORDER BY r.started_at DESC LIMIT ? OFFSET ?",
         )
@@ -236,9 +305,11 @@ pub async fn list_all_runs(
         .fetch_all(pool)
         .await
     } else {
-        sqlx::query_as::<_, RunWithJobName>(
-            "SELECT r.*, j.name as job_name FROM job_runs r
+        sqlx::query_as::<_, RunWithJobAndApp>(
+            "SELECT r.*, j.name as job_name, a.name as app_name, a.base_url as app_base_url
+             FROM job_runs r
              JOIN jobs j ON j.id = r.job_id
+             JOIN apps a ON a.id = j.app_id
              ORDER BY r.started_at DESC LIMIT ? OFFSET ?",
         )
         .bind(limit)
@@ -296,18 +367,7 @@ pub async fn complete_run(
     Ok(())
 }
 
-#[allow(dead_code)]
-pub async fn prune_old_runs(pool: &SqlitePool, retention_days: i64) -> Result<u64, sqlx::Error> {
-    let cutoff = Utc::now()
-        .checked_sub_signed(chrono::Duration::days(retention_days))
-        .unwrap_or_else(Utc::now)
-        .to_rfc3339();
-    let result = sqlx::query("DELETE FROM job_runs WHERE started_at < ?")
-        .bind(cutoff)
-        .execute(pool)
-        .await?;
-    Ok(result.rows_affected())
-}
+// ──── STATS ────
 
 pub async fn get_dashboard_stats(pool: &SqlitePool) -> Result<DashboardStats, sqlx::Error> {
     let now = Utc::now().to_rfc3339();
@@ -323,6 +383,9 @@ pub async fn get_dashboard_stats(pool: &SqlitePool) -> Result<DashboardStats, sq
         .unwrap_or_else(Utc::now)
         .to_rfc3339();
 
+    let total_apps: i64 = sqlx::query_scalar("SELECT count(*) FROM apps")
+        .fetch_one(pool)
+        .await?;
     let total_jobs: i64 = sqlx::query_scalar("SELECT count(*) FROM jobs")
         .fetch_one(pool)
         .await?;
@@ -349,33 +412,11 @@ pub async fn get_dashboard_stats(pool: &SqlitePool) -> Result<DashboardStats, sq
             .await?;
 
     Ok(DashboardStats {
+        total_apps,
         total_jobs,
         enabled_jobs,
         due_jobs,
         recent_failures,
         runs_today,
-    })
-}
-
-pub async fn list_jobs_paginated(
-    pool: &SqlitePool,
-    page: i64,
-    per_page: i64,
-    enabled_only: bool,
-) -> Result<PaginatedResult<Job>, sqlx::Error> {
-    let offset = (page - 1).max(0) * per_page;
-    let total = count_jobs(pool, enabled_only).await?;
-    let items = list_jobs(pool, enabled_only, per_page, offset).await?;
-    let total_pages = if per_page > 0 {
-        ((total as f64) / (per_page as f64)).ceil() as i64
-    } else {
-        1
-    };
-    Ok(PaginatedResult {
-        items,
-        total,
-        page,
-        per_page,
-        total_pages: total_pages.max(1),
     })
 }

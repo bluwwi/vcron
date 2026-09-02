@@ -80,8 +80,7 @@ async fn main() -> anyhow::Result<()> {
 
 fn build_app(state: AppState) -> Router {
     Router::new()
-        .merge(api::health::routes())
-        .merge(api::build_api_router(state.clone()))
+        .merge(api::build_api_router())
         .layer(TraceLayer::new_for_http())
         .layer(TimeoutLayer::with_status_code(
             axum::http::StatusCode::REQUEST_TIMEOUT,

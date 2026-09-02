@@ -4,7 +4,6 @@ use std::env;
 pub struct Config {
     pub database_url: String,
     pub port: u16,
-    pub api_key: String,
     pub log_level: String,
     pub scheduler_interval_seconds: u64,
 }
@@ -20,10 +19,6 @@ impl Config {
                 .unwrap_or_else(|_| "8080".into())
                 .parse()
                 .expect("PORT must be a number"),
-            api_key: env::var("API_KEY").unwrap_or_else(|_| {
-                tracing::warn!("API_KEY not set — using insecure default. Set API_KEY in production!");
-                "dev-api-key".into()
-            }),
             log_level: env::var("RUST_LOG").unwrap_or_else(|_| "info".into()),
             scheduler_interval_seconds: env::var("SCHEDULER_INTERVAL_SECONDS")
                 .unwrap_or_else(|_| "30".into())

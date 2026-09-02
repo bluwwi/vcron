@@ -18,7 +18,11 @@ async fn handler(State(state): State<AppState>) -> Json<serde_json::Value> {
         .await
         .is_ok();
 
-    let (enabled, total) = if db_ok {
+    let (apps, enabled, total) = if db_ok {
+        let a: i64 = sqlx::query_scalar("SELECT count(*) FROM apps")
+            .fetch_one(&state.db)
+            .await
+            .unwrap_or(0);
         let e: i64 = sqlx::query_scalar("SELECT count(*) FROM jobs WHERE enabled = true")
             .fetch_one(&state.db)
             .await
@@ -27,9 +31,9 @@ async fn handler(State(state): State<AppState>) -> Json<serde_json::Value> {
             .fetch_one(&state.db)
             .await
             .unwrap_or(0);
-        (e, t)
+        (a, e, t)
     } else {
-        (0, 0)
+        (0, 0, 0)
     };
 
     Json(json!({
@@ -38,6 +42,7 @@ async fn handler(State(state): State<AppState>) -> Json<serde_json::Value> {
         "uptime_seconds": APP_START.elapsed().as_secs(),
         "database": {
             "connected": db_ok,
+            "apps": apps,
             "jobs_enabled": enabled,
             "jobs_total": total,
         }

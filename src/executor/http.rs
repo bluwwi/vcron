@@ -4,7 +4,7 @@ use std::time::Instant;
 use reqwest::Client;
 use tracing::warn;
 
-use crate::db::models::{Job, RunResult};
+use crate::db::models::{JobWithApp, RunResult};
 
 static CLIENT: tokio::sync::OnceCell<Client> = tokio::sync::OnceCell::const_new();
 
@@ -19,9 +19,11 @@ async fn client() -> &'static Client {
         .await
 }
 
-pub async fn execute_job(job: &Job) -> RunResult {
+pub async fn execute_job(job: &JobWithApp) -> RunResult {
     let cli = client().await;
     let started = Instant::now();
+
+    let full_url = format!("{}{}", job.app_base_url, job.path);
 
     let mut headers_map = HashMap::new();
     if let serde_json::Value::Object(map) = &job.headers {
@@ -40,11 +42,11 @@ pub async fn execute_job(job: &Job) -> RunResult {
 
     for attempt in 1..=max_attempts {
         let mut request = match job.method.as_str() {
-            "GET" => cli.get(&job.url),
-            "POST" => cli.post(&job.url),
-            "PUT" => cli.put(&job.url),
-            "DELETE" => cli.delete(&job.url),
-            "PATCH" => cli.patch(&job.url),
+            "GET" => cli.get(&full_url),
+            "POST" => cli.post(&full_url),
+            "PUT" => cli.put(&full_url),
+            "DELETE" => cli.delete(&full_url),
+            "PATCH" => cli.patch(&full_url),
             other => {
                 return RunResult {
                     status: "failed".into(),

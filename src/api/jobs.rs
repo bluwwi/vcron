@@ -6,7 +6,7 @@ use chrono::Utc;
 use uuid::Uuid;
 
 use crate::db::models::{
-    CreateJobInput, Job, JobListParams, JobRun, PaginatedResult, UpdateJobInput,
+    CreateJobInput, Job, JobRun, JobWithApp, ListParams, RunWithJobAndApp, UpdateJobInput,
 };
 use crate::db::queries;
 use crate::error::{AppError, AppResult};
@@ -15,7 +15,7 @@ use crate::AppState;
 
 pub fn routes() -> Router<AppState> {
     Router::new()
-        .route("/api/jobs", get(list).post(create))
+        .route("/api/jobs", get(list_all).post(create))
         .route(
             "/api/jobs/{id}",
             get(get_one).put(update).delete(delete),
@@ -25,44 +25,39 @@ pub fn routes() -> Router<AppState> {
         .route("/api/stats", get(stats))
 }
 
-async fn list(
-    State(state): State<AppState>,
-    Query(params): Query<JobListParams>,
-) -> AppResult<Json<PaginatedResult<Job>>> {
-    let page = params.page.unwrap_or(1).max(1);
-    let per_page = params.per_page.unwrap_or(20).clamp(1, 100);
-    let enabled_only = params.enabled_only.unwrap_or(false);
-
-    let result = queries::list_jobs_paginated(&state.db, page, per_page, enabled_only)
+async fn list_all(State(state): State<AppState>) -> AppResult<Json<Vec<JobWithApp>>> {
+    let jobs = queries::list_all_jobs_with_app(&state.db)
         .await
         .map_err(AppError::Database)?;
-    Ok(Json(result))
+    Ok(Json(jobs))
+}
+
+async fn get_one(State(state): State<AppState>, Path(id): Path<String>) -> AppResult<Json<JobWithApp>> {
+    let job = queries::get_job_with_app(&state.db, id)
+        .await
+        .map_err(AppError::Database)?;
+    Ok(Json(job))
 }
 
 async fn create(
     State(state): State<AppState>,
     Json(input): Json<CreateJobInput>,
 ) -> AppResult<(StatusCode, Json<Job>)> {
-    validate_job_input(&input.name, &input.cron_expression, &input.url, input.method.as_deref())?;
+    validate_job_input(&input.name, &input.cron_expression, input.method.as_deref())?;
+
+    // Verify app exists
+    queries::get_app(&state.db, input.app_id.clone())
+        .await
+        .map_err(AppError::Database)?;
 
     let id = Uuid::new_v4();
     let next_run = calculate_next_run(&input.cron_expression, Utc::now())
         .map_err(AppError::Validation)?;
 
-    let job = queries::create_job(&state.db, id, &input, Some(next_run))
+    let job = queries::create_job(&state.db, id, input.app_id.clone(), &input, Some(next_run))
         .await
         .map_err(AppError::Database)?;
     Ok((StatusCode::CREATED, Json(job)))
-}
-
-async fn get_one(
-    State(state): State<AppState>,
-    Path(id): Path<String>,
-) -> AppResult<Json<Job>> {
-    let job = queries::get_job(&state.db, id)
-        .await
-        .map_err(AppError::Database)?;
-    Ok(Json(job))
 }
 
 async fn update(
@@ -81,9 +76,6 @@ async fn update(
             return Err(AppError::Validation("name cannot be empty".into()));
         }
     }
-    if let Some(ref url) = input.url {
-        validate_url(url)?;
-    }
 
     let next_run = if let Some(ref expr) = input.cron_expression {
         Some(calculate_next_run(expr, Utc::now()).map_err(AppError::Validation)?)
@@ -97,10 +89,7 @@ async fn update(
     Ok(Json(job))
 }
 
-async fn delete(
-    State(state): State<AppState>,
-    Path(id): Path<String>,
-) -> AppResult<StatusCode> {
+async fn delete(State(state): State<AppState>, Path(id): Path<String>) -> AppResult<StatusCode> {
     queries::delete_job(&state.db, id)
         .await
         .map_err(AppError::Database)?;
@@ -110,9 +99,9 @@ async fn delete(
 async fn list_runs(
     State(state): State<AppState>,
     Path(id): Path<String>,
-    Query(params): Query<JobListParams>,
+    Query(params): Query<ListParams>,
 ) -> AppResult<Json<Vec<JobRun>>> {
-    let per_page = params.per_page.unwrap_or(20).clamp(1, 100);
+    let per_page = params.per_page.unwrap_or(50).clamp(1, 200);
     let page = params.page.unwrap_or(1).max(1);
     let offset = (page - 1) * per_page;
 
@@ -120,15 +109,6 @@ async fn list_runs(
         .await
         .map_err(AppError::Database)?;
     Ok(Json(runs))
-}
-
-async fn stats(
-    State(state): State<AppState>,
-) -> AppResult<Json<crate::db::models::DashboardStats>> {
-    let stats = queries::get_dashboard_stats(&state.db)
-        .await
-        .map_err(AppError::Database)?;
-    Ok(Json(stats))
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -144,7 +124,7 @@ struct RunListParams {
 async fn list_all_runs(
     State(state): State<AppState>,
     Query(params): Query<RunListParams>,
-) -> AppResult<Json<Vec<queries::RunWithJobName>>> {
+) -> AppResult<Json<Vec<RunWithJobAndApp>>> {
     let page = params.page.unwrap_or(1).max(1);
     let per_page = params.per_page.unwrap_or(50).clamp(1, 200);
     let offset = (page - 1) * per_page;
@@ -156,29 +136,22 @@ async fn list_all_runs(
     Ok(Json(runs))
 }
 
-fn validate_job_input(
-    name: &str,
-    cron_expr: &str,
-    url: &str,
-    method: Option<&str>,
-) -> AppResult<()> {
+async fn stats(
+    State(state): State<AppState>,
+) -> AppResult<Json<crate::db::models::DashboardStats>> {
+    let stats = queries::get_dashboard_stats(&state.db)
+        .await
+        .map_err(AppError::Database)?;
+    Ok(Json(stats))
+}
+
+fn validate_job_input(name: &str, cron_expr: &str, method: Option<&str>) -> AppResult<()> {
     if name.trim().is_empty() {
         return Err(AppError::Validation("name cannot be empty".into()));
     }
     validate_cron_expression(cron_expr).map_err(AppError::Validation)?;
-    validate_url(url)?;
     if let Some(m) = method {
         validate_method(m)?;
-    }
-    Ok(())
-}
-
-fn validate_url(url: &str) -> AppResult<()> {
-    if url.trim().is_empty() {
-        return Err(AppError::Validation("url cannot be empty".into()));
-    }
-    if !url.starts_with("http://") && !url.starts_with("https://") {
-        return Err(AppError::Validation("url must start with http:// or https://".into()));
     }
     Ok(())
 }
