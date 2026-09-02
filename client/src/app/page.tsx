@@ -6,8 +6,10 @@ import { api } from "@/lib/api";
 import type { App, AppStats, DashboardStats } from "@/lib/types";
 import { StatCard } from "@/components/StatCard";
 import { timeAgo } from "@/lib/utils";
+import { useTick } from "@/lib/useTick";
 
 export default function Dashboard() {
+  useTick();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [apps, setApps] = useState<App[]>([]);
   const [appStats, setAppStats] = useState<AppStats[]>([]);

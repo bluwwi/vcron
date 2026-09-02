@@ -6,8 +6,10 @@ import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import type { App, Job } from "@/lib/types";
 import { cronToHuman, timeAgo, timeUntil } from "@/lib/utils";
+import { useTick } from "@/lib/useTick";
 
 export default function AppDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  useTick();
   const router = useRouter();
   const [id, setId] = useState("");
   const [app, setApp] = useState<App | null>(null);

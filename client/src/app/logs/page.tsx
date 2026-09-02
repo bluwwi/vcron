@@ -5,10 +5,12 @@ import Link from "next/link";
 import { api } from "@/lib/api";
 import type { RunWithJobAndApp } from "@/lib/types";
 import { timeAgo } from "@/lib/utils";
+import { useTick } from "@/lib/useTick";
 
 const STATUS_FILTERS = ["", "success", "failed", "timeout"] as const;
 
 export default function LogsPage() {
+  useTick();
   const [runs, setRuns] = useState<RunWithJobAndApp[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
