@@ -17,17 +17,17 @@ export default function LandingPage() {
 
   return (
     <div className="relative w-full overflow-x-hidden">
+      <div className="noise" />
       <div className="global-grid" />
 
       {/* Hero */}
-      <section
-        className="relative flex min-h-[calc(100vh-4rem)] items-center overflow-hidden"
-      >
+      <section className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-center overflow-hidden">
+        {/* Ambient glow */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(circle at 82% 22%, rgba(202,255,97,0.06), transparent 30%), radial-gradient(circle at 18% 78%, rgba(120,144,255,0.04), transparent 35%)",
+              "radial-gradient(ellipse 80% 50% at 70% 30%, rgba(202,255,97,0.08), transparent 60%), radial-gradient(ellipse 60% 40% at 20% 80%, rgba(120,144,255,0.05), transparent 60%)",
           }}
         />
 
@@ -36,9 +36,10 @@ export default function LandingPage() {
           style={{ padding: "clamp(2rem, 5vw, 5rem) clamp(1.5rem, 5vw, 5rem)" }}
         >
           {/* Kicker */}
-          <div className="reveal mb-6">
-            <p className="mono text-[10px] sm:text-xs tracking-[0.16em] text-text-dim">
-              <span className="text-accent">◦</span> HTTP cron scheduler <span className="text-accent">◦</span> Rust + SQLite <span className="text-accent">◦</span> 2026
+          <div className="reveal mb-8 flex items-center gap-3">
+            <div className="h-px w-8 bg-accent" />
+            <p className="mono text-[10px] sm:text-xs tracking-[0.2em] text-text-dim">
+              HTTP cron scheduler — Rust + SQLite — 2026
             </p>
           </div>
 
@@ -46,8 +47,8 @@ export default function LandingPage() {
           <h1
             className="font-bold relative z-10"
             style={{
-              fontSize: "clamp(3rem, 10vw, 9rem)",
-              lineHeight: "0.85",
+              fontSize: "clamp(3rem, 11vw, 10rem)",
+              lineHeight: "0.82",
               letterSpacing: "-0.06em",
             }}
           >
@@ -70,37 +71,38 @@ export default function LandingPage() {
             </span>
           </h1>
 
-          {/* Hero content grid */}
-          <div
-            className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 max-w-4xl"
-          >
-            <div className="reveal">
+          {/* Hero content */}
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-12 gap-6 max-w-5xl">
+            <div className="reveal sm:col-span-6">
               <p className="text-base sm:text-lg text-text-dim leading-relaxed">
                 Register your APIs, create scheduled jobs, and let vcron hit
                 your endpoints on time — every time. No infrastructure needed.
               </p>
             </div>
-            <div className="reveal flex flex-wrap items-end gap-3">
+            <div className="reveal sm:col-span-6 flex flex-wrap items-end gap-3 sm:justify-end">
               {loggedIn === null ? (
                 <div className="h-11 w-32 animate-pulse rounded-lg bg-surface" />
               ) : loggedIn ? (
                 <Link
                   href="/dashboard"
-                  className="rounded-xl bg-accent px-6 py-2.5 text-sm font-medium text-black hover:bg-accent-dim transition-colors"
+                  className="group relative rounded-2xl px-7 py-3 text-sm font-medium text-black overflow-hidden"
+                  style={{ background: "var(--color-accent)" }}
                 >
-                  Go to Dashboard →
+                  <span className="relative z-10">Go to Dashboard →</span>
                 </Link>
               ) : (
                 <>
                   <Link
                     href="/auth"
-                    className="rounded-xl bg-accent px-6 py-2.5 text-sm font-medium text-black hover:bg-accent-dim transition-colors"
+                    className="group relative rounded-2xl px-7 py-3 text-sm font-medium text-black overflow-hidden transition-transform hover:scale-105"
+                    style={{ background: "var(--color-accent)" }}
                   >
                     Get Started
                   </Link>
                   <Link
                     href="/dashboard"
-                    className="rounded-xl border border-border bg-surface px-6 py-2.5 text-sm text-text-dim hover:text-text hover:border-border-hover transition-colors"
+                    className="rounded-2xl px-7 py-3 text-sm text-text-dim hover:text-text transition-colors"
+                    style={{ background: "rgba(255,255,255,0.04)" }}
                   >
                     Live Demo
                   </Link>
@@ -110,13 +112,14 @@ export default function LandingPage() {
           </div>
 
           {/* Hero rail */}
-          <div className="mt-12 reveal">
-            <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-6 gap-y-2 mono text-[9px] sm:text-[10px] tracking-[0.12em] text-text-dimmer">
-              <span><span className="text-accent">◦</span> 30s intervals</span>
-              <span><span className="text-accent">◦</span> Cron expressions</span>
-              <span><span className="text-accent">◦</span> Auto retries</span>
-              <span><span className="text-accent">◦</span> Run history</span>
-              <span><span className="text-accent">◦</span> Multi-app</span>
+          <div className="mt-16 reveal">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mono text-[9px] sm:text-[10px] tracking-[0.14em] text-text-dimmer">
+              {["30s intervals", "Cron expressions", "Auto retries", "Run history", "Multi-app"].map((item) => (
+                <span key={item} className="flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-accent" />
+                  {item}
+                </span>
+              ))}
             </div>
           </div>
         </div>
@@ -124,11 +127,13 @@ export default function LandingPage() {
 
       {/* Marquee */}
       <section
-        className="marquee-section border-y border-border py-3 sm:py-4"
-        style={{ background: "rgba(202,255,97,0.04)" }}
+        className="marquee-section py-3 sm:py-4"
+        style={{
+          background: "linear-gradient(90deg, rgba(202,255,97,0.02), rgba(202,255,97,0.06), rgba(202,255,97,0.02))",
+        }}
       >
         <div className="marquee-content">
-          <span className="mono text-xs sm:text-sm tracking-[0.2em] font-bold">
+          <span className="mono text-xs sm:text-sm tracking-[0.25em] font-bold">
             <span className="text-text">SCHEDULE</span>
             <span className="text-accent mx-5 sm:mx-6">◦</span>
             <span className="text-text">EXECUTE</span>
@@ -140,7 +145,7 @@ export default function LandingPage() {
             <span className="text-text">REPEAT</span>
             <span className="text-accent mx-5 sm:mx-6">◦</span>
           </span>
-          <span className="mono text-xs sm:text-sm tracking-[0.2em] font-bold">
+          <span className="mono text-xs sm:text-sm tracking-[0.25em] font-bold">
             <span className="text-text">SCHEDULE</span>
             <span className="text-accent mx-5 sm:mx-6">◦</span>
             <span className="text-text">EXECUTE</span>
@@ -158,36 +163,35 @@ export default function LandingPage() {
       {/* Features */}
       <section
         className="mx-auto w-full max-w-7xl"
-        style={{ padding: "clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 5rem)" }}
+        style={{ padding: "clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 5rem)" }}
       >
-        {/* Section heading */}
-        <div className="reveal mb-10 sm:mb-16">
-          <div className="grid grid-cols-1 sm:grid-cols-[1fr_3fr] gap-2 sm:gap-0">
-            <div className="mono text-[10px] sm:text-xs tracking-[0.12em] text-accent mb-2 sm:mb-0">
-              ◦ Features
-            </div>
-            <h2
-              className="font-bold"
+        {/* Section header */}
+        <div className="reveal mb-12 sm:mb-20">
+          <p className="mono text-[10px] sm:text-xs tracking-[0.2em] text-accent mb-4 flex items-center gap-3">
+            <span className="h-px w-6 bg-accent" />
+            Features
+          </p>
+          <h2
+            className="font-bold max-w-3xl"
+            style={{
+              fontSize: "clamp(2rem, 7vw, 6rem)",
+              lineHeight: "0.82",
+              letterSpacing: "-0.06em",
+            }}
+          >
+            Built for{" "}
+            <span
               style={{
-                fontSize: "clamp(2rem, 7vw, 6rem)",
-                lineHeight: "0.85",
-                letterSpacing: "-0.06em",
+                WebkitTextStroke: "clamp(0.005rem, 0.15vw, 0.08rem) var(--color-accent)",
+                color: "transparent",
               }}
             >
-              Built for{" "}
-              <span
-                style={{
-                  WebkitTextStroke: "clamp(0.005rem, 0.15vw, 0.08rem) var(--color-accent)",
-                  color: "transparent",
-                }}
-              >
-                reliability.
-              </span>
-            </h2>
-          </div>
+              reliability.
+            </span>
+          </h2>
         </div>
 
-        {/* Feature cards grid */}
+        {/* Feature cards — borderless glow grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {features.map((f) => (
             <FeatureCard key={f.num} {...f} />
@@ -198,58 +202,57 @@ export default function LandingPage() {
       {/* How it works */}
       <section
         className="mx-auto w-full max-w-5xl"
-        style={{ padding: "clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 5rem)" }}
+        style={{ padding: "clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 5rem)" }}
       >
-        <div className="reveal mb-10 sm:mb-16">
-          <div className="grid grid-cols-1 sm:grid-cols-[1fr_3fr] gap-2 sm:gap-0">
-            <div className="mono text-[10px] sm:text-xs tracking-[0.12em] text-accent mb-2 sm:mb-0">
-              ◦ How it works
-            </div>
-            <h2
-              className="font-bold"
+        <div className="reveal mb-12 sm:mb-20">
+          <p className="mono text-[10px] sm:text-xs tracking-[0.2em] text-accent mb-4 flex items-center gap-3">
+            <span className="h-px w-6 bg-accent" />
+            How it works
+          </p>
+          <h2
+            className="font-bold max-w-3xl"
+            style={{
+              fontSize: "clamp(2rem, 7vw, 6rem)",
+              lineHeight: "0.82",
+              letterSpacing: "-0.06em",
+            }}
+          >
+            Three steps to{" "}
+            <span
               style={{
-                fontSize: "clamp(2rem, 7vw, 6rem)",
-                lineHeight: "0.85",
-                letterSpacing: "-0.06em",
+                WebkitTextStroke: "clamp(0.005rem, 0.15vw, 0.08rem) var(--color-accent)",
+                color: "transparent",
               }}
             >
-              Three steps to{" "}
-              <span
-                style={{
-                  WebkitTextStroke: "clamp(0.005rem, 0.15vw, 0.08rem) var(--color-accent)",
-                  color: "transparent",
-                }}
-              >
-                automate.
-              </span>
-            </h2>
-          </div>
+              automate.
+            </span>
+          </h2>
         </div>
 
-        <div className="space-y-2 sm:space-y-3">
+        <div className="space-y-4 sm:space-y-5">
           {steps.map((step) => (
             <div
               key={step.num}
-              className="reveal glass-card spotlight-card p-5 sm:p-8 group cursor-default"
+              className="reveal glow-card p-6 sm:p-10 group cursor-default"
               onMouseMove={handleSpotlight}
             >
-              <div className="flex items-center gap-4 sm:gap-6">
-                <span className="mono text-xl sm:text-2xl font-bold text-text-dimmer tabular-nums shrink-0">
+              <div className="flex items-center gap-5 sm:gap-8">
+                <span
+                  className="font-bold shrink-0"
+                  style={{
+                    fontSize: "clamp(1.5rem, 4vw, 3rem)",
+                    lineHeight: "1",
+                    color: "var(--color-text-dimmer)",
+                    WebkitTextStroke: "clamp(0.005rem, 0.1vw, 0.05rem) var(--color-accent)",
+                  }}
+                >
                   {step.num}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg sm:text-xl font-semibold">{step.title}</h3>
-                  <p className="text-xs sm:text-sm text-text-dim mt-1">{step.desc}</p>
+                  <div className="accent-bar mb-3" />
+                  <h3 className="text-lg sm:text-2xl font-semibold">{step.title}</h3>
+                  <p className="text-sm sm:text-base text-text-dim mt-1">{step.desc}</p>
                 </div>
-                <svg
-                  className="h-4 w-4 sm:h-5 sm:w-5 text-text-dimmer group-hover:text-accent transition-colors shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                </svg>
               </div>
             </div>
           ))}
@@ -261,42 +264,62 @@ export default function LandingPage() {
         className="mx-auto w-full max-w-5xl"
         style={{ padding: "clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 5rem)" }}
       >
-        <div className="reveal glass-card p-8 sm:p-16 text-center">
-          <h2
-            className="font-bold mb-4"
+        <div
+          className="reveal relative rounded-3xl p-10 sm:p-20 text-center overflow-hidden"
+          style={{ background: "var(--color-surface)" }}
+        >
+          {/* Inner glow */}
+          <div
+            className="pointer-events-none absolute inset-0"
             style={{
-              fontSize: "clamp(2rem, 6vw, 4rem)",
-              lineHeight: "0.85",
-              letterSpacing: "-0.06em",
+              background: "radial-gradient(circle at 50% 50%, rgba(202,255,97,0.08), transparent 60%)",
             }}
-          >
-            Ready to <span className="text-accent">automate?</span>
-          </h2>
-          <p className="text-text-dim text-sm mb-8 max-w-md mx-auto">
-            Create an account and start scheduling jobs in under a minute.
-          </p>
-          {loggedIn ? (
-            <Link
-              href="/dashboard"
-              className="inline-flex rounded-xl bg-accent px-8 py-3 text-sm font-medium text-black hover:bg-accent-dim transition-colors"
+          />
+          <div className="relative z-10">
+            <h2
+              className="font-bold mb-5"
+              style={{
+                fontSize: "clamp(2.5rem, 7vw, 5rem)",
+                lineHeight: "0.82",
+                letterSpacing: "-0.06em",
+              }}
             >
-              Go to Dashboard →
-            </Link>
-          ) : (
-            <Link
-              href="/auth"
-              className="inline-flex rounded-xl bg-accent px-8 py-3 text-sm font-medium text-black hover:bg-accent-dim transition-colors"
-            >
-              Get Started — It's Free
-            </Link>
-          )}
+              Ready to <span className="text-accent">automate?</span>
+            </h2>
+            <p className="text-text-dim text-sm sm:text-base mb-10 max-w-md mx-auto">
+              Create an account and start scheduling jobs in under a minute.
+            </p>
+            {loggedIn ? (
+              <Link
+                href="/dashboard"
+                className="inline-flex rounded-2xl px-8 py-3.5 text-sm font-medium text-black hover:scale-105 transition-transform"
+                style={{ background: "var(--color-accent)" }}
+              >
+                Go to Dashboard →
+              </Link>
+            ) : (
+              <Link
+                href="/auth"
+                className="inline-flex rounded-2xl px-8 py-3.5 text-sm font-medium text-black hover:scale-105 transition-transform"
+                style={{ background: "var(--color-accent)" }}
+              >
+                Get Started — It's Free
+              </Link>
+            )}
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-6 sm:py-8 px-6">
-        <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-2 mono text-[9px] sm:text-[10px] tracking-[0.12em] text-text-dimmer">
-          <span><span className="text-accent">◦</span> vcron — cron job server</span>
+      <footer
+        className="py-8 sm:py-10"
+        style={{ padding: "0 clamp(1.5rem, 5vw, 5rem)" }}
+      >
+        <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-3 mono text-[9px] sm:text-[10px] tracking-[0.14em] text-text-dimmer">
+          <span className="flex items-center gap-2">
+            <span className="h-1 w-1 rounded-full bg-accent" />
+            vcron — cron job server
+          </span>
           <span>Built with Rust + Next.js</span>
         </div>
       </footer>
@@ -339,16 +362,28 @@ const icons: Record<string, React.ReactNode> = {
 function FeatureCard({ num, title, desc, icon }: { num: string; title: string; desc: string; icon: string }) {
   return (
     <div
-      className="reveal glass-card spotlight-card p-5 sm:p-6 group cursor-default transition-transform hover:-translate-y-1 duration-300"
+      className="reveal glow-card p-6 sm:p-7 group cursor-default"
       onMouseMove={handleSpotlight}
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-glow text-accent">
+      <div className="flex items-center justify-between mb-5">
+        <div
+          className="flex h-11 w-11 items-center justify-center rounded-2xl text-accent transition-transform group-hover:scale-110 duration-300"
+          style={{ background: "var(--color-accent-glow)" }}
+        >
           {icons[icon]}
         </div>
-        <span className="mono text-xs text-text-dimmer tabular-nums">{num}</span>
+        <span
+          className="font-bold text-text-dimmer"
+          style={{
+            fontSize: "clamp(1.5rem, 3vw, 2rem)",
+            WebkitTextStroke: "clamp(0.005rem, 0.1vw, 0.05rem) var(--color-accent)",
+          }}
+        >
+          {num}
+        </span>
       </div>
-      <h3 className="font-semibold mb-1 text-sm sm:text-base">{title}</h3>
+      <div className="accent-bar mb-3" />
+      <h3 className="font-semibold mb-1.5 text-sm sm:text-base">{title}</h3>
       <p className="text-xs sm:text-sm text-text-dim leading-relaxed">{desc}</p>
     </div>
   );
