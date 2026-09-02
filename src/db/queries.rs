@@ -4,20 +4,58 @@ use uuid::Uuid;
 
 use super::models::{
     App, AppStats, CreateAppInput, CreateJobInput, DashboardStats, Job, JobRun, JobWithApp,
-    PaginatedResult, RunResult, RunWithJobAndApp, UpdateAppInput, UpdateJobInput,
+    RunResult, RunWithJobAndApp, UpdateAppInput, UpdateJobInput, User,
 };
 
-// ──── APP QUERIES ────
+// ──── USER QUERIES ────
 
-pub async fn list_apps(pool: &SqlitePool) -> Result<Vec<App>, sqlx::Error> {
-    sqlx::query_as::<_, App>("SELECT * FROM apps ORDER BY created_at DESC")
-        .fetch_all(pool)
+pub async fn create_user(
+    pool: &SqlitePool,
+    id: Uuid,
+    username: &str,
+    password_hash: &str,
+) -> Result<User, sqlx::Error> {
+    sqlx::query_as::<_, User>(
+        "INSERT INTO users (id, username, password_hash)
+         VALUES (?, ?, ?)
+         RETURNING *",
+    )
+    .bind(id.to_string())
+    .bind(username)
+    .bind(password_hash)
+    .fetch_one(pool)
+    .await
+}
+
+pub async fn get_user_by_username(pool: &SqlitePool, username: &str) -> Result<User, sqlx::Error> {
+    sqlx::query_as::<_, User>("SELECT * FROM users WHERE username = ?")
+        .bind(username)
+        .fetch_one(pool)
         .await
 }
 
-pub async fn get_app(pool: &SqlitePool, id: String) -> Result<App, sqlx::Error> {
-    sqlx::query_as::<_, App>("SELECT * FROM apps WHERE id = ?")
+pub async fn get_user_by_id(pool: &SqlitePool, id: &str) -> Result<User, sqlx::Error> {
+    sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = ?")
         .bind(id)
+        .fetch_one(pool)
+        .await
+}
+
+// ──── APP QUERIES (scoped by user_id) ────
+
+pub async fn list_apps(pool: &SqlitePool, user_id: &str) -> Result<Vec<App>, sqlx::Error> {
+    sqlx::query_as::<_, App>(
+        "SELECT * FROM apps WHERE user_id = ? ORDER BY created_at DESC",
+    )
+    .bind(user_id)
+    .fetch_all(pool)
+    .await
+}
+
+pub async fn get_app(pool: &SqlitePool, id: String, user_id: &str) -> Result<App, sqlx::Error> {
+    sqlx::query_as::<_, App>("SELECT * FROM apps WHERE id = ? AND user_id = ?")
+        .bind(id)
+        .bind(user_id)
         .fetch_one(pool)
         .await
 }
@@ -25,15 +63,17 @@ pub async fn get_app(pool: &SqlitePool, id: String) -> Result<App, sqlx::Error> 
 pub async fn create_app(
     pool: &SqlitePool,
     id: Uuid,
+    user_id: &str,
     input: &CreateAppInput,
 ) -> Result<App, sqlx::Error> {
     let description = input.description.clone().unwrap_or_default();
     sqlx::query_as::<_, App>(
-        "INSERT INTO apps (id, name, base_url, description)
-         VALUES (?, ?, ?, ?)
+        "INSERT INTO apps (id, user_id, name, base_url, description)
+         VALUES (?, ?, ?, ?, ?)
          RETURNING *",
     )
     .bind(id.to_string())
+    .bind(user_id)
     .bind(&input.name)
     .bind(&input.base_url)
     .bind(&description)
@@ -44,6 +84,7 @@ pub async fn create_app(
 pub async fn update_app(
     pool: &SqlitePool,
     id: String,
+    user_id: &str,
     input: &UpdateAppInput,
 ) -> Result<App, sqlx::Error> {
     sqlx::query_as::<_, App>(
@@ -51,20 +92,22 @@ pub async fn update_app(
             name = COALESCE(?, name),
             base_url = COALESCE(?, base_url),
             description = COALESCE(?, description)
-         WHERE id = ?
+         WHERE id = ? AND user_id = ?
          RETURNING *",
     )
     .bind(&input.name)
     .bind(&input.base_url)
     .bind(&input.description)
     .bind(&id)
+    .bind(user_id)
     .fetch_one(pool)
     .await
 }
 
-pub async fn delete_app(pool: &SqlitePool, id: String) -> Result<(), sqlx::Error> {
-    let result = sqlx::query("DELETE FROM apps WHERE id = ?")
+pub async fn delete_app(pool: &SqlitePool, id: String, user_id: &str) -> Result<(), sqlx::Error> {
+    let result = sqlx::query("DELETE FROM apps WHERE id = ? AND user_id = ?")
         .bind(id)
+        .bind(user_id)
         .execute(pool)
         .await?;
     if result.rows_affected() == 0 {
@@ -73,7 +116,7 @@ pub async fn delete_app(pool: &SqlitePool, id: String) -> Result<(), sqlx::Error
     Ok(())
 }
 
-pub async fn app_stats(pool: &SqlitePool) -> Result<Vec<AppStats>, sqlx::Error> {
+pub async fn app_stats(pool: &SqlitePool, user_id: &str) -> Result<Vec<AppStats>, sqlx::Error> {
     sqlx::query_as::<_, AppStats>(
         "SELECT
             a.id as app_id,
@@ -81,8 +124,10 @@ pub async fn app_stats(pool: &SqlitePool) -> Result<Vec<AppStats>, sqlx::Error> 
             (SELECT count(*) FROM jobs WHERE app_id = a.id AND enabled = true) as enabled_count,
             (SELECT MAX(j.last_run_at) FROM jobs j WHERE j.app_id = a.id) as last_run
          FROM apps a
+         WHERE a.user_id = ?
          ORDER BY a.created_at DESC",
     )
+    .bind(user_id)
     .fetch_all(pool)
     .await
 }
@@ -98,13 +143,18 @@ pub async fn list_jobs_for_app(pool: &SqlitePool, app_id: String) -> Result<Vec<
     .await
 }
 
-pub async fn list_all_jobs_with_app(pool: &SqlitePool) -> Result<Vec<JobWithApp>, sqlx::Error> {
+pub async fn list_all_jobs_with_app(
+    pool: &SqlitePool,
+    user_id: &str,
+) -> Result<Vec<JobWithApp>, sqlx::Error> {
     sqlx::query_as::<_, JobWithApp>(
         "SELECT j.*, a.name as app_name, a.base_url as app_base_url
          FROM jobs j
          JOIN apps a ON a.id = j.app_id
+         WHERE a.user_id = ?
          ORDER BY j.created_at DESC",
     )
+    .bind(user_id)
     .fetch_all(pool)
     .await
 }
@@ -116,14 +166,19 @@ pub async fn get_job(pool: &SqlitePool, id: String) -> Result<Job, sqlx::Error> 
         .await
 }
 
-pub async fn get_job_with_app(pool: &SqlitePool, id: String) -> Result<JobWithApp, sqlx::Error> {
+pub async fn get_job_with_app(
+    pool: &SqlitePool,
+    id: String,
+    user_id: &str,
+) -> Result<JobWithApp, sqlx::Error> {
     sqlx::query_as::<_, JobWithApp>(
         "SELECT j.*, a.name as app_name, a.base_url as app_base_url
          FROM jobs j
          JOIN apps a ON a.id = j.app_id
-         WHERE j.id = ?",
+         WHERE j.id = ? AND a.user_id = ?",
     )
     .bind(id)
+    .bind(user_id)
     .fetch_one(pool)
     .await
 }
@@ -210,7 +265,7 @@ pub async fn update_job(
     .bind(input.enabled)
     .bind(&next_str)
     .bind(&next_str)
-    .bind(&id)
+    .bind(id)
     .fetch_one(pool)
     .await
 }
@@ -286,6 +341,7 @@ pub async fn list_runs_for_job(
 
 pub async fn list_all_runs(
     pool: &SqlitePool,
+    user_id: &str,
     limit: i64,
     offset: i64,
     status_filter: Option<&str>,
@@ -296,9 +352,10 @@ pub async fn list_all_runs(
              FROM job_runs r
              JOIN jobs j ON j.id = r.job_id
              JOIN apps a ON a.id = j.app_id
-             WHERE r.status = ?
+             WHERE a.user_id = ? AND r.status = ?
              ORDER BY r.started_at DESC LIMIT ? OFFSET ?",
         )
+        .bind(user_id)
         .bind(status)
         .bind(limit)
         .bind(offset)
@@ -310,8 +367,10 @@ pub async fn list_all_runs(
              FROM job_runs r
              JOIN jobs j ON j.id = r.job_id
              JOIN apps a ON a.id = j.app_id
+             WHERE a.user_id = ?
              ORDER BY r.started_at DESC LIMIT ? OFFSET ?",
         )
+        .bind(user_id)
         .bind(limit)
         .bind(offset)
         .fetch_all(pool)
@@ -369,7 +428,10 @@ pub async fn complete_run(
 
 // ──── STATS ────
 
-pub async fn get_dashboard_stats(pool: &SqlitePool) -> Result<DashboardStats, sqlx::Error> {
+pub async fn get_dashboard_stats(
+    pool: &SqlitePool,
+    user_id: &str,
+) -> Result<DashboardStats, sqlx::Error> {
     let now = Utc::now().to_rfc3339();
     let today_start = Utc::now()
         .date_naive()
@@ -383,33 +445,51 @@ pub async fn get_dashboard_stats(pool: &SqlitePool) -> Result<DashboardStats, sq
         .unwrap_or_else(Utc::now)
         .to_rfc3339();
 
-    let total_apps: i64 = sqlx::query_scalar("SELECT count(*) FROM apps")
-        .fetch_one(pool)
-        .await?;
-    let total_jobs: i64 = sqlx::query_scalar("SELECT count(*) FROM jobs")
-        .fetch_one(pool)
-        .await?;
-    let enabled_jobs: i64 =
-        sqlx::query_scalar("SELECT count(*) FROM jobs WHERE enabled = true")
+    let total_apps: i64 =
+        sqlx::query_scalar("SELECT count(*) FROM apps WHERE user_id = ?")
+            .bind(user_id)
             .fetch_one(pool)
             .await?;
-    let due_jobs: i64 = sqlx::query_scalar(
-        "SELECT count(*) FROM jobs WHERE enabled = true AND next_run_at IS NOT NULL AND next_run_at <= ?",
+    let total_jobs: i64 = sqlx::query_scalar(
+        "SELECT count(*) FROM jobs j JOIN apps a ON a.id = j.app_id WHERE a.user_id = ?",
     )
+    .bind(user_id)
+    .fetch_one(pool)
+    .await?;
+    let enabled_jobs: i64 = sqlx::query_scalar(
+        "SELECT count(*) FROM jobs j JOIN apps a ON a.id = j.app_id WHERE a.user_id = ? AND j.enabled = true",
+    )
+    .bind(user_id)
+    .fetch_one(pool)
+    .await?;
+    let due_jobs: i64 = sqlx::query_scalar(
+        "SELECT count(*) FROM jobs j JOIN apps a ON a.id = j.app_id
+         WHERE a.user_id = ? AND j.enabled = true AND j.next_run_at IS NOT NULL AND j.next_run_at <= ?",
+    )
+    .bind(user_id)
     .bind(&now)
     .fetch_one(pool)
     .await?;
     let recent_failures: i64 = sqlx::query_scalar(
-        "SELECT count(*) FROM job_runs WHERE status IN ('failed', 'timeout') AND started_at > ?",
+        "SELECT count(*) FROM job_runs r
+         JOIN jobs j ON j.id = r.job_id
+         JOIN apps a ON a.id = j.app_id
+         WHERE a.user_id = ? AND r.status IN ('failed', 'timeout') AND r.started_at > ?",
     )
+    .bind(user_id)
     .bind(&one_hour_ago)
     .fetch_one(pool)
     .await?;
-    let runs_today: i64 =
-        sqlx::query_scalar("SELECT count(*) FROM job_runs WHERE started_at >= ?")
-            .bind(&today_start)
-            .fetch_one(pool)
-            .await?;
+    let runs_today: i64 = sqlx::query_scalar(
+        "SELECT count(*) FROM job_runs r
+         JOIN jobs j ON j.id = r.job_id
+         JOIN apps a ON a.id = j.app_id
+         WHERE a.user_id = ? AND r.started_at >= ?",
+    )
+    .bind(user_id)
+    .bind(&today_start)
+    .fetch_one(pool)
+    .await?;
 
     Ok(DashboardStats {
         total_apps,
