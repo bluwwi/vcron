@@ -5,6 +5,7 @@ import Link from "next/link";
 import { api } from "@/lib/api";
 import type { App, AppStats, DashboardStats } from "@/lib/types";
 import { StatCard } from "@/components/StatCard";
+import { PixelLoader } from "@/components/PixelLoader";
 import { timeAgo } from "@/lib/utils";
 import { useTick } from "@/lib/useTick";
 
@@ -15,6 +16,12 @@ export default function Dashboard() {
   const [appStats, setAppStats] = useState<AppStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showLoader, setShowLoader] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setShowLoader(false), 2500);
+    return () => clearTimeout(t);
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -35,7 +42,8 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, [load]);
 
-  if (loading) return <div className="text-text-dim animate-pulse">Loading...</div>;
+  if (showLoader) return <PixelLoader />;
+  if (loading) return <PixelLoader />;
   if (error) return <div className="text-danger text-sm">{error}</div>;
 
   return (
