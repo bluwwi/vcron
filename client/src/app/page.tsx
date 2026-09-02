@@ -123,9 +123,9 @@ export default function LandingPage() {
       <section className="relative border-y border-border overflow-hidden py-4" style={{ background: "rgba(202,255,97,0.04)" }}>
         <div className="marquee-track">
           {[...Array(2)].map((_, i) => (
-            <div key={i} className="flex items-center gap-8 px-4">
-              {["SCHEDULE", "EXECUTE", "LOG", "RETRY", "REPEAT", "SCHEDULE", "EXECUTE", "LOG", "RETRY", "REPEAT"].map((word, j) => (
-                <span key={j} className="mono text-sm uppercase tracking-[0.2em] font-bold">
+            <div key={i} className="marquee-group flex items-center gap-8 px-4 shrink-0">
+              {["SCHEDULE", "EXECUTE", "LOG", "RETRY", "REPEAT"].map((word, j) => (
+                <span key={j} className="mono text-sm uppercase tracking-[0.2em] font-bold whitespace-nowrap">
                   <span className="text-text">{word}</span>
                   <span className="text-accent ml-8">◦</span>
                 </span>

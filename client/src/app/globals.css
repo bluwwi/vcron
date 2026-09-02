@@ -36,7 +36,7 @@ html {
 body {
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-manrope), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -62,7 +62,7 @@ body {
 }
 
 .font-mono, .mono {
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-manrope), 'Courier New', monospace;
 }
 
 input, select, textarea {
@@ -180,7 +180,11 @@ select option {
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee 30s linear infinite;
+  animation: marquee 25s linear infinite;
+}
+
+.marquee-group {
+  flex-shrink: 0;
 }
 
 @keyframes marquee {
