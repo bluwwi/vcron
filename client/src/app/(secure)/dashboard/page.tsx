@@ -71,7 +71,7 @@ export default function Dashboard() {
       {showLoader && <PixelLoader onComplete={completeLoader} />}
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 py-8 space-y-8 animate-fadeIn">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight select-none">Dashboard</h1>
           <p className="text-text-dim text-sm mt-1">Monitor and manage your scheduled jobs</p>
         </div>
 
@@ -85,7 +85,7 @@ export default function Dashboard() {
         </div>
 
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Apps</h2>
+          <h2 className="text-xl font-semibold select-none">Apps</h2>
         </div>
 
         {apps.length === 0 ? (

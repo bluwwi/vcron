@@ -45,7 +45,7 @@ export default function LandingPage() {
           style={{ padding: "0 clamp(1.5rem, 5vw, 5rem)" }}
         >
           <h1
-            className="reveal font-bold text-center"
+            className="reveal font-bold text-center select-none"
             style={{
               fontSize: "clamp(3.8rem, 24.2vw, 20rem)",
               fontWeight: 620,
@@ -151,7 +151,7 @@ export default function LandingPage() {
       <section>
         <div className="mx-auto w-full max-w-7xl" style={{ padding: "clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 5rem)" }}>
         <div className="reveal mb-12 sm:mb-16">
-          <p className="section-label">Expertise</p>
+          <p className="section-label select-none">Expertise</p>
           <h2
             className="font-bold"
             style={{
@@ -201,7 +201,7 @@ export default function LandingPage() {
       <section>
         <div className="mx-auto w-full max-w-7xl" style={{ padding: "clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 5rem)" }}>
         <div className="reveal mb-12 sm:mb-16">
-          <p className="section-label">How it works</p>
+          <p className="section-label select-none">How it works</p>
           <h2
             className="font-bold"
             style={{
@@ -258,7 +258,7 @@ export default function LandingPage() {
       <section>
         <div className="mx-auto w-full max-w-7xl" style={{ padding: "clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 5rem)" }}>
         <div className="reveal mb-12">
-          <p className="section-label">Highlights</p>
+          <p className="section-label select-none">Highlights</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {[
@@ -267,7 +267,7 @@ export default function LandingPage() {
             { num: "1MB", label: "Max RAM Usage" },
           ].map((s) => (
             <div key={s.label} className="reveal stat-card">
-              <p className="stat-number text-accent">{s.num}</p>
+              <p className="stat-number text-accent select-none">{s.num}</p>
               <p className="stat-label">{s.label}</p>
             </div>
           ))}
@@ -339,7 +339,7 @@ export default function LandingPage() {
           </div>
 
           <div className="reveal" style={{ overflow: "hidden" }}>
-            <p className="footer-big-text" style={{ fontSize: "clamp(3rem, 18vw, 16rem)" }}>
+            <p className="footer-big-text select-none" style={{ fontSize: "clamp(3rem, 18vw, 16rem)" }}>
               vcron•
             </p>
           </div>

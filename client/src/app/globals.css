@@ -24,6 +24,14 @@
   box-sizing: border-box;
 }
 
+button, a, [role="button"] {
+  cursor: pointer;
+}
+
+button:disabled, a:disabled {
+  cursor: not-allowed;
+}
+
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
