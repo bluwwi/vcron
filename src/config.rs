@@ -15,7 +15,7 @@ impl Config {
 
         Self {
             database_url: env::var("DATABASE_URL")
-                .unwrap_or_else(|_| "sqlite:data/revoCron.db?mode=rwc".into()),
+                .unwrap_or_else(|_| "sqlite:data/vcron.db?mode=rwc".into()),
             port: env::var("PORT")
                 .unwrap_or_else(|_| "8080".into())
                 .parse()

@@ -6,10 +6,10 @@ export function Nav() {
       <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2 group">
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-black font-bold text-sm group-hover:scale-110 transition-transform">
-            r
+            v
           </span>
           <span className="text-lg font-semibold tracking-tight">
-            revo<span className="text-accent">Cron</span>
+            <span className="text-accent">v</span>cron
           </span>
         </Link>
         <div className="flex items-center gap-1 sm:gap-4 text-sm">

@@ -50,7 +50,7 @@ export default function Dashboard() {
         </div>
         <h2 className="text-xl font-semibold">API Key Required</h2>
         <p className="text-text-dim max-w-sm">
-          Set your revoCron API key to manage jobs. You can get it from your backend's
+          Set your vcron API key to manage jobs. You can get it from your backend's
           <code className="mx-1 px-1 py-0.5 rounded bg-surface text-accent text-sm">API_KEY</code>
           environment variable.
         </p>

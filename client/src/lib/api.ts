@@ -8,7 +8,7 @@ import type {
   UpdateJobInput,
 } from "./types";
 
-const API_KEY_STORAGE = "revocron_api_key";
+const API_KEY_STORAGE = "vcron_api_key";
 
 export function getApiKey(): string {
   if (typeof window === "undefined") return "";

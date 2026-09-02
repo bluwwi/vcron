@@ -9,7 +9,7 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "revoCron",
+  title: "vcron",
   description: "Cron job scheduler — HTTP trigger server",
 };
 
@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
         <footer className="border-t border-border py-4 text-center text-xs text-text-dim">
-          revoCron &middot; cron job server
+          vcron &middot; cron job server
         </footer>
       </body>
     </html>

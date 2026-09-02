@@ -30,7 +30,7 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "revoCron=info,tower_http=info".into()),
+                .unwrap_or_else(|_| "vcron=info,tower_http=info".into()),
         )
         .init();
 
@@ -68,7 +68,7 @@ async fn main() -> anyhow::Result<()> {
     let app = build_app(state);
 
     let addr = format!("0.0.0.0:{}", config.port);
-    tracing::info!("revoCron listening on {addr}");
+    tracing::info!("vcron listening on {addr}");
 
     let listener = tokio::net::TcpListener::bind(&addr).await?;
     axum::serve(listener, app)
