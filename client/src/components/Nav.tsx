@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
 const navItems = [
-  { href: "/", label: "Apps" },
+  { href: "/dashboard", label: "Apps" },
   { href: "/logs", label: "Logs" },
 ];
 
@@ -34,7 +34,7 @@ export function Nav() {
     } catch {
       // ignore
     }
-    router.push("/auth");
+    router.push("/");
     router.refresh();
   }
 

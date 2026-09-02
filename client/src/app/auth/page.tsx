@@ -17,7 +17,7 @@ export default function AuthPage() {
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
-      .then((r) => { if (r.ok) router.push("/"); })
+      .then((r) => { if (r.ok) router.push("/dashboard"); })
       .catch(() => {});
   }, [router]);
 
@@ -39,7 +39,7 @@ export default function AuthPage() {
 
     try {
       await api.auth(mode, { username: username.trim(), password });
-      router.push("/");
+      router.push("/dashboard");
       router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed");
