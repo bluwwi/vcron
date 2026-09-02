@@ -1,49 +1,28 @@
 import type {
   ApiError,
+  App,
+  AppStats,
+  CreateAppInput,
   CreateJobInput,
   DashboardStats,
   Job,
   JobRun,
-  PaginatedResult,
-  RunWithJobName,
+  JobWithApp,
+  RunWithJobAndApp,
+  UpdateAppInput,
   UpdateJobInput,
 } from "./types";
-
-const API_KEY_STORAGE = "vcron_api_key";
-
-export function getApiKey(): string {
-  if (typeof window === "undefined") return "";
-  return localStorage.getItem(API_KEY_STORAGE) || "";
-}
-
-export function setApiKey(key: string): void {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(API_KEY_STORAGE, key);
-  }
-}
 
 async function request<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const apiKey = getApiKey();
-
-  if (!apiKey) {
-    console.warn(`[vcron] No API key set in localStorage. Go to /settings to set it.`);
-  }
-
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    "X-API-Key": apiKey,
     ...(options.headers as Record<string, string>),
   };
 
   const method = options.method || "GET";
-  console.log(`[vcron] ${method} ${path}`, {
-    hasApiKey: !!apiKey,
-    keyPreview: apiKey ? `${apiKey.slice(0, 4)}...` : "(empty)",
-  });
-
   const res = await fetch(path, { ...options, headers });
 
   console.log(`[vcron] ${method} ${path} → ${res.status}`);
@@ -65,39 +44,34 @@ async function request<T>(
 }
 
 export const api = {
-  health: () => request<{ status: string; uptime_seconds: number }>("/api/health-proxy"),
+  // Apps
+  listApps: () => request<App[]>("/api/apps"),
+  getApp: (id: string) => request<App>(`/api/apps/${id}`),
+  createApp: (input: CreateAppInput) =>
+    request<App>("/api/apps", { method: "POST", body: JSON.stringify(input) }),
+  updateApp: (id: string, input: UpdateAppInput) =>
+    request<App>(`/api/apps/${id}`, { method: "PUT", body: JSON.stringify(input) }),
+  deleteApp: (id: string) => request<void>(`/api/apps/${id}`, { method: "DELETE" }),
+  listAppJobs: (id: string) => request<Job[]>(`/api/apps/${id}/jobs`),
+  appStats: () => request<AppStats[]>("/api/apps/stats"),
 
-  stats: () => request<DashboardStats>("/api/stats"),
-
-  listJobs: (page = 1, perPage = 20, enabledOnly = false) =>
-    request<PaginatedResult<Job>>(
-      `/api/jobs?page=${page}&per_page=${perPage}&enabled_only=${enabledOnly}`,
-    ),
-
-  getJob: (id: string) => request<Job>(`/api/jobs/${id}`),
-
+  // Jobs
+  listAllJobs: () => request<JobWithApp[]>("/api/jobs"),
+  getJob: (id: string) => request<JobWithApp>(`/api/jobs/${id}`),
   createJob: (input: CreateJobInput) =>
-    request<Job>("/api/jobs", {
-      method: "POST",
-      body: JSON.stringify(input),
-    }),
-
+    request<Job>("/api/jobs", { method: "POST", body: JSON.stringify(input) }),
   updateJob: (id: string, input: UpdateJobInput) =>
-    request<Job>(`/api/jobs/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(input),
-    }),
+    request<Job>(`/api/jobs/${id}`, { method: "PUT", body: JSON.stringify(input) }),
+  deleteJob: (id: string) => request<void>(`/api/jobs/${id}`, { method: "DELETE" }),
 
-  deleteJob: (id: string) =>
-    request<void>(`/api/jobs/${id}`, { method: "DELETE" }),
-
-  listRuns: (id: string, page = 1, perPage = 20) =>
-    request<JobRun[]>(
-      `/api/jobs/${id}/runs?page=${page}&per_page=${perPage}`,
-    ),
-
+  // Runs
+  listRuns: (jobId: string, page = 1, perPage = 50) =>
+    request<JobRun[]>(`/api/jobs/${jobId}/runs?page=${page}&per_page=${perPage}`),
   listAllRuns: (page = 1, perPage = 50, status = "") =>
-    request<RunWithJobName[]>(
+    request<RunWithJobAndApp[]>(
       `/api/runs?page=${page}&per_page=${perPage}${status ? `&status=${status}` : ""}`,
     ),
+
+  // Stats
+  stats: () => request<DashboardStats>("/api/stats"),
 };

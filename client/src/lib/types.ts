@@ -1,9 +1,38 @@
+export interface App {
+  id: string;
+  name: string;
+  base_url: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateAppInput {
+  name: string;
+  base_url: string;
+  description?: string;
+}
+
+export interface UpdateAppInput {
+  name?: string;
+  base_url?: string;
+  description?: string;
+}
+
+export interface AppStats {
+  app_id: string;
+  job_count: number;
+  enabled_count: number;
+  last_run: string | null;
+}
+
 export interface Job {
   id: string;
+  app_id: string;
   name: string;
   description: string;
   cron_expression: string;
-  url: string;
+  path: string;
   method: string;
   headers: Record<string, unknown>;
   body: string | null;
@@ -15,6 +44,11 @@ export interface Job {
   next_run_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface JobWithApp extends Job {
+  app_name: string;
+  app_base_url: string;
 }
 
 export interface JobRun {
@@ -32,11 +66,14 @@ export interface JobRun {
   finished_at: string | null;
 }
 
-export interface RunWithJobName extends JobRun {
+export interface RunWithJobAndApp extends JobRun {
   job_name: string;
+  app_name: string;
+  app_base_url: string;
 }
 
 export interface DashboardStats {
+  total_apps: number;
   total_jobs: number;
   enabled_jobs: number;
   due_jobs: number;
@@ -44,19 +81,12 @@ export interface DashboardStats {
   runs_today: number;
 }
 
-export interface PaginatedResult<T> {
-  items: T[];
-  total: number;
-  page: number;
-  per_page: number;
-  total_pages: number;
-}
-
 export interface CreateJobInput {
+  app_id: string;
   name: string;
   description?: string;
   cron_expression: string;
-  url: string;
+  path?: string;
   method?: string;
   headers?: Record<string, unknown>;
   body?: string;
@@ -69,7 +99,7 @@ export interface UpdateJobInput {
   name?: string;
   description?: string;
   cron_expression?: string;
-  url?: string;
+  path?: string;
   method?: string;
   headers?: Record<string, unknown>;
   body?: string;

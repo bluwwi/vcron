@@ -17,25 +17,19 @@ export function Nav() {
             href="/"
             className="px-3 py-1.5 rounded-md text-text-dim hover:text-text hover:bg-surface-hover transition-colors"
           >
-            Dashboard
+            Apps
+          </Link>
+          <Link
+            href="/apps/new"
+            className="px-3 py-1.5 rounded-md text-text-dim hover:text-text hover:bg-surface-hover transition-colors"
+          >
+            New App
           </Link>
           <Link
             href="/logs"
             className="px-3 py-1.5 rounded-md text-text-dim hover:text-text hover:bg-surface-hover transition-colors"
           >
             Logs
-          </Link>
-          <Link
-            href="/jobs/new"
-            className="px-3 py-1.5 rounded-md text-text-dim hover:text-text hover:bg-surface-hover transition-colors"
-          >
-            New Job
-          </Link>
-          <Link
-            href="/settings"
-            className="px-3 py-1.5 rounded-md text-text-dim hover:text-text hover:bg-surface-hover transition-colors"
-          >
-            Settings
           </Link>
         </div>
       </nav>
