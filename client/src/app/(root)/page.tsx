@@ -130,7 +130,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════ MARQUEE ═══════════════ */}
-      <div style={{ background: "linear-gradient(90deg, rgba(202,255,97,0.02), rgba(202,255,97,0.05), rgba(202,255,97,0.02))" }}>
+      <div className="mx-auto w-full max-w-7xl my-5" style={{ padding: "0 clamp(1.5rem, 5vw, 5rem)", background: "linear-gradient(90deg, rgba(202,255,97,0.02), rgba(202,255,97,0.05), rgba(202,255,97,0.02))", borderRadius: "12px" }}>
         <Marquee speed={25}>
           <span className="mono text-xs sm:text-sm tracking-[0.25em] font-bold py-3 sm:py-4">
             <span className="text-text">SCHEDULE</span>
