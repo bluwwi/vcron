@@ -1,3 +1,5 @@
+<br/>
+<br/>
 <p align="center">
   <a href="https://github.com/bluwwi/vcron"><img src="client/public/full-logo.svg" alt="vcron" height=70></a>
 </p>
@@ -13,7 +15,6 @@
 
 
 
-<br/>
 
 
 ## What is vcron?
