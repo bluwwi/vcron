@@ -13,15 +13,11 @@
   <img src="https://img.shields.io/badge/frontend-Next.js-000000?logo=next.js&logoColor=white" />
 </p>
 
-
-
-
-
 ## What is vcron?
 
-vcron is a lightweight, self-hosted cron job scheduler for HTTP endpoints. Register your APIs, create scheduled jobs, and let vcron hit your endpoints on time — every time. Built in Rust with SQLite, designed to run on a 1GB VPS with minimal resource usage.
+vcron is a lightweight, self-hosted cron job scheduler for HTTP endpoints. Register your APIs, create scheduled jobs, and let vcron hit your endpoints on time — every time. Built in Rust with SQLite, designed for minimal resource usage.
 
-This repository contains **both** the backend (Rust + Axum + SQLite) and the frontend (Next.js 16 + React 19 + Tailwind CSS v4). The backend deploys on a VPS, the frontend deploys on Vercel — or anywhere else.
+This repository contains **both** the backend (Rust + Axum + SQLite) and the frontend (Next.js 16 + React 19 + Tailwind CSS v4). The backend runs on your server, the frontend deploys on Vercel — or anywhere else.
 
 ```bash
 # Backend
@@ -76,7 +72,7 @@ npm run dev
 
 | | |
 |---|---|
-| **Backend host** | VPS (1GB RAM minimum) |
+| **Backend host** | Your server |
 | **Frontend host** | Vercel |
 | **Reverse proxy** | Nginx |
 | **SSL** | Let's Encrypt (Certbot) |
@@ -85,7 +81,7 @@ npm run dev
 ## Architecture
 
 ```
-User Browser → Vercel (Next.js) → VPS (Rust + SQLite)
+User Browser → Vercel (Next.js) → Server (Rust + SQLite)
                  │                      │
                  │  /api/* proxied      │  Scheduler ticks every 5s
                  │  via rewrites         │  Picks due jobs
@@ -97,9 +93,9 @@ User Browser → Vercel (Next.js) → VPS (Rust + SQLite)
 
 ## Install
 
-### Backend (VPS)
+### Backend
 
-> **Prerequisites:** Rust 1.85+ (or install via `snap install rustup --classic`), OpenSSL for JWT secret generation.
+> **Prerequisites:** Rust 1.85+, OpenSSL for JWT secret generation.
 
 ```sh
 git clone https://github.com/bluwwi/vcron.git
@@ -277,15 +273,6 @@ The scheduler uses `tokio::time::interval` with a 5-second tick (configurable). 
 - Executes the HTTP request (with configurable timeout + exponential backoff retries)
 - Updates the run record with status, status code, response body (truncated to 64KB), duration, and error
 - Calculates the next run time and updates the job
-
-## Resource Usage
-
-| Metric | Value |
-|--------|-------|
-| Idle RAM | ~15-20 MB |
-| Peak RAM (under load) | ~30-40 MB |
-| Binary size (stripped) | ~5-8 MB |
-| SQLite DB | grows with usage (auto-created) |
 
 ## Contributing
 
