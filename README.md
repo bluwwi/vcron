@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/bluwwi/vcron" target="_blank"><img height=20 src="https://img.shields.io/badge/github-bluwwi/vcron-181717?logo=github&logoColor=white" /></a>
   <img src="https://img.shields.io/github/stars/bluwwi/vcron" alt="stars">
-  <a href="https://cron.bluwi.xyz"><img src="https://img.shields.io/static/v1?label=status&message=live&color=success" alt="status" /></a>
+  <img src="https://img.shields.io/static/v1?label=status&message=live&color=success" alt="status" />
   <img src="https://img.shields.io/badge/backend-Rust-CE422B?logo=rust&logoColor=white" />
   <img src="https://img.shields.io/badge/frontend-Next.js-000000?logo=next.js&logoColor=white" />
 </p>
@@ -17,7 +17,7 @@
 
 vcron is a lightweight, self-hosted cron job scheduler for HTTP endpoints. Register your APIs, create scheduled jobs, and let vcron hit your endpoints on time — every time. Built in Rust with SQLite, designed for minimal resource usage.
 
-This repository contains **both** the backend (Rust + Axum + SQLite) and the frontend (Next.js 16 + React 19 + Tailwind CSS v4). The backend runs on your server, the frontend deploys on Vercel — or anywhere else.
+This repository contains **both** the backend (Rust + Axum + SQLite) and the frontend (Next.js 16 + React 19 + Tailwind CSS v4).
 
 ```bash
 # Backend
@@ -66,22 +66,11 @@ npm run dev
 | **Styling** | Tailwind CSS v4 |
 | **Font** | Manrope (Google Fonts) |
 | **Animations** | Custom canvas pixel loader, IntersectionObserver scroll reveals, JS-driven marquee |
-| **Deploy** | Vercel |
-
-### Infrastructure
-
-| | |
-|---|---|
-| **Backend host** | Your server |
-| **Frontend host** | Vercel |
-| **Reverse proxy** | Nginx |
-| **SSL** | Let's Encrypt (Certbot) |
-| **Process manager** | systemd |
 
 ## Architecture
 
 ```
-User Browser → Vercel (Next.js) → Server (Rust + SQLite)
+User Browser → Frontend (Next.js) → Backend (Rust + SQLite)
                  │                      │
                  │  /api/* proxied      │  Scheduler ticks every 5s
                  │  via rewrites         │  Picks due jobs
@@ -91,84 +80,19 @@ User Browser → Vercel (Next.js) → Server (Rust + SQLite)
            landing + dashboard     target URLs
 ```
 
-## Install
+## How It Works
 
-### Backend
+1. **Register your API** — Create an app with a base URL (e.g. `https://api.example.com`)
+2. **Add jobs** — Define paths like `/healthz`, pick a schedule (every 30s, cron expression), set HTTP method and headers
+3. **Relax** — vcron's scheduler ticks every 5 seconds, picks up due jobs, executes HTTP requests with retry support, and logs every result
 
-> **Prerequisites:** Rust 1.85+, OpenSSL for JWT secret generation.
+The scheduler uses `tokio::time::interval` with a 5-second tick (configurable). Due jobs are fetched via a SQL query that joins `jobs` + `apps` for the full URL. Each execution spawns an independent tokio task that:
+- Creates a `job_runs` record with `status='running'`
+- Executes the HTTP request (with configurable timeout + exponential backoff retries)
+- Updates the run record with status, status code, response body (truncated to 64KB), duration, and error
+- Calculates the next run time and updates the job
 
-```sh
-git clone https://github.com/bluwwi/vcron.git
-cd vcron
-cargo build --release
-cp .env.example .env
-# Edit .env — set JWT_SECRET (run: openssl rand -base64 32)
-./target/release/vcron
-```
-
-Set up as a systemd service:
-
-```sh
-cat > /etc/systemd/system/vcron.service << 'EOF'
-[Unit]
-Description=vcron cron job server
-After=network.target
-
-[Service]
-Type=simple
-User=root
-WorkingDirectory=/root/vcron
-EnvironmentFile=/root/vcron/.env
-ExecStart=/root/vcron/target/release/vcron
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-systemctl daemon-reload
-systemctl enable vcron
-systemctl start vcron
-```
-
-Nginx reverse proxy:
-
-```nginx
-server {
-    listen 80;
-    server_name cron.bluwi.xyz;
-
-    location / {
-        proxy_pass http://127.0.0.1:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    }
-}
-```
-
-```sh
-certbot --nginx -d cron.bluwi.xyz
-```
-
-### Frontend (Vercel)
-
-```sh
-cd client
-npm install
-cp .env.example .env.local
-# Edit .env.local — set BACKEND_URL=https://cron.bluwi.xyz
-npm run dev
-```
-
-Or deploy on Vercel:
-1. Import `bluwwi/vcron` from GitHub
-2. Set Root Directory to `client`
-3. Set env var: `BACKEND_URL=https://cron.bluwi.xyz`
-4. Deploy
-
-### Environment Variables
+## Environment Variables
 
 **Backend (`.env`):**
 
@@ -262,21 +186,9 @@ vcron/
 └── README.md
 ```
 
-## How It Works
-
-1. **Register your API** — Create an app with a base URL (e.g. `https://api.blu3.in`)
-2. **Add jobs** — Define paths like `/healthz`, pick a schedule (every 30s, cron expression), set HTTP method and headers
-3. **Relax** — vcron's scheduler ticks every 5 seconds, picks up due jobs, executes HTTP requests with retry support, and logs every result
-
-The scheduler uses `tokio::time::interval` with a 5-second tick (configurable). Due jobs are fetched via a SQL query that joins `jobs` + `apps` for the full URL. Each execution spawns an independent tokio task that:
-- Creates a `job_runs` record with `status='running'`
-- Executes the HTTP request (with configurable timeout + exponential backoff retries)
-- Updates the run record with status, status code, response body (truncated to 64KB), duration, and error
-- Calculates the next run time and updates the job
-
 ## Contributing
 
-Issues and pull requests welcome. The project is a student-built educational project.
+Issues and pull requests welcome.
 
 Build & typecheck:
 
