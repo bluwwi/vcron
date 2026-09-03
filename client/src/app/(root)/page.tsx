@@ -29,9 +29,8 @@ export default function LandingPage() {
       {/* ═══════════════ HERO ═══════════════ */}
       <section
         className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-center overflow-hidden"
-        style={{ paddingTop: "100px" }}
+        style={{ paddingTop: "30px" }}
       >
-        {/* Ambient glow */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -49,7 +48,7 @@ export default function LandingPage() {
             style={{
               fontSize: "clamp(3.8rem, 24.2vw, 20rem)",
               fontWeight: 620,
-              lineHeight: "0.84",
+              lineHeight: "0.7",
               letterSpacing: "-0.035em",
               textTransform: "uppercase",
               whiteSpace: "nowrap",
@@ -58,7 +57,7 @@ export default function LandingPage() {
               display: "block",
             }}
           >
-            vcron.
+            <span className="text-accent">v</span>cron.
           </h1>
 
           {/* Content split — full width, centered */}
@@ -99,16 +98,14 @@ export default function LandingPage() {
                     <Link href="/auth" className="accent-btn px-6 py-3 text-sm">
                       Get Started
                     </Link>
-                    <Link href="/dashboard" className="ghost-btn px-6 py-3 text-sm">
-                      Live Demo
-                    </Link>
+
                   </>
                 )}
               </div>
             </div>
 
             {/* Right column — stats */}
-            <div className="reveal flex flex-col justify-center gap-5 sm:items-end sm:text-right">
+            <div className="reveal flex flex-col justify-center gap-2 sm:items-end sm:text-right">
               <p className="text-text-dim leading-relaxed mb-2" style={{ fontSize: "clamp(0.9rem, 1vw, 1.1rem)" }}>
                 Building production-ready cron jobs with auto retries,
                 run history, and multi-app support.
@@ -147,7 +144,6 @@ export default function LandingPage() {
         </Marquee>
       </div>
 
-      {/* ═══════════════ FEATURES ═══════════════ */}
       <section>
         <div className="mx-auto w-full max-w-7xl" style={{ padding: "clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 5rem)" }}>
         <div className="reveal mb-12 sm:mb-16">
@@ -158,15 +154,12 @@ export default function LandingPage() {
               fontSize: "clamp(2rem, 7vw, 5rem)",
               lineHeight: "0.85",
               letterSpacing: "-0.045em",
-              textTransform: "uppercase",
             }}
           >
             Built for{" "}
             <span
-              style={{
-                WebkitTextStroke: "clamp(0.005rem, 0.15vw, 0.08rem) var(--color-accent)",
-                color: "transparent",
-              }}
+
+                className="text-accent"
             >
               reliability.
             </span>
@@ -208,15 +201,11 @@ export default function LandingPage() {
               fontSize: "clamp(2rem, 7vw, 5rem)",
               lineHeight: "0.85",
               letterSpacing: "-0.045em",
-              textTransform: "uppercase",
             }}
           >
             Three steps to{" "}
-            <span
-              style={{
-                WebkitTextStroke: "clamp(0.005rem, 0.15vw, 0.08rem) var(--color-accent)",
-                color: "transparent",
-              }}
+              <span
+                className="text-accent capitalize"
             >
               automate.
             </span>
@@ -285,7 +274,6 @@ export default function LandingPage() {
               fontSize: "clamp(2.5rem, 7vw, 4.5rem)",
               lineHeight: "0.85",
               letterSpacing: "-0.045em",
-              textTransform: "uppercase",
             }}
           >
             Ready to <span className="text-accent">automate?</span>
@@ -339,8 +327,8 @@ export default function LandingPage() {
           </div>
 
           <div className="reveal" style={{ overflow: "hidden" }}>
-            <p className="footer-big-text select-none" style={{ fontSize: "clamp(3rem, 18vw, 16rem)" }}>
-              vcron•
+            <p className="footer-big-text text-center select-none" style={{ fontSize: "clamp(3rem, 18vw, 16rem)" }}>
+              vcron
             </p>
           </div>
 
