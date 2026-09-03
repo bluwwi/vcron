@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/bluwwi/vcron"><img src="client/public/full-logo.svg" alt="vcron" height=60></a>
+  <a href="https://github.com/bluwwi/vcron"><img src="client/public/full-logo.svg" alt="vcron" height=70></a>
 </p>
 <h1 align="center">vcron — Cron Job Scheduler</h1>
 
@@ -11,20 +11,10 @@
   <img src="https://img.shields.io/badge/frontend-Next.js-000000?logo=next.js&logoColor=white" />
 </p>
 
-<div align="center">
-  <a href="https://cron.bluwi.xyz">Backend (VPS)</a>
-  &nbsp;&nbsp;•&nbsp;&nbsp;
-  <a href="https://github.com/bluwwi/vcron">GitHub</a>
-  &nbsp;&nbsp;•&nbsp;&nbsp;
-  <a href="https://github.com/bluwwi/vcron/issues/new">Issues</a>
-  <br />
-</div>
+
 
 <br/>
 
-<div align="center">
-  <img src="client/public/full-logo.svg" alt="vcron" width="40%" />
-</div>
 
 ## What is vcron?
 
